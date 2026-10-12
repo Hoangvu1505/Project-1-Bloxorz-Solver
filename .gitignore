@@ -1,0 +1,43 @@
+# =============================================================================
+# .gitignore cho Đồ án Bloxorz Solver (Python / AI / Pygame)
+# =============================================================================
+
+# 1. Môi trường ảo Python (Virtual Environments) - Bắt buộc bỏ qua
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# 2. Python bytecode và cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyd
+
+# 3. Cache công cụ và test
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+
+# 4. Trình soạn thảo & IDE (VS Code, PyCharm, v.v.)
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+
+# 5. File hệ điều hành tạo tự động
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# 6. File log và file tạm
+*.log
+*.tmp
+*.bak
