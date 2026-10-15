@@ -32,16 +32,13 @@ class SearchResult:
         )
 
 
-#hàm cần code lại
-def reconstruct_path(
-    parent_map: Dict[GameState, Tuple[Optional[GameState], Optional[str], float]],
-    goal_state: GameState
-) -> Tuple[List[str], List[GameState], float]:
-    """Truy vết lại đường đi từ trạng thái đích về trạng thái ban đầu."""
-    actions = []
-    states = []
-    curr = goal_state
+def reconstruct_path(parent_map, goal_state):
+    if goal_state not in parent_map:
+        raise KeyError("goal_state không có trong parent_map")
+
+    actions, states = [], []
     total_cost = 0.0
+    curr = goal_state
 
     while curr is not None:
         states.append(curr)
