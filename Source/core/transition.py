@@ -6,7 +6,7 @@ from typing import Tuple, Optional
 from core.state import Orientation, Direction, DIR_DELTAS
 
 
-#hàm cần code lại
+
 def roll_solid_block(
     ori: Orientation,
     pos: Tuple[int, int],
@@ -48,7 +48,7 @@ def roll_solid_block(
     raise ValueError(f"Không hợp lệ: orientation={ori}, direction={move}")
 
 
-#hàm cần code lại
+
 def roll_split_cube(
     cube_pos: Tuple[int, int],
     move: Direction
@@ -58,7 +58,7 @@ def roll_split_cube(
     return cube_pos[0] + dr, cube_pos[1] + dc
 
 
-#hàm cần code lại
+
 def check_cube_merge(
     cube1: Tuple[int, int],
     cube2: Tuple[int, int]

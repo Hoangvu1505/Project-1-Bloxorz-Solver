@@ -31,7 +31,6 @@ class GameState:
     """Biểu diễn trạng thái của khối và cầu trên bàn cờ."""
     __slots__ = ('is_split', 'orientation', 'pos', 'cubes', 'active_cube', 'bridge_states', '_hash')
 
-    #hàm cần code lại
     def __init__(
         self,
         is_split: bool,
@@ -42,69 +41,62 @@ class GameState:
         bridge_states: Tuple[bool, ...]
     ):
         self.is_split = is_split
-        self.orientation = orientation
-        self.pos = pos
-
-        if cubes is not None:
-            c0, c1 = cubes
-            self.cubes = (c0, c1) if c0 <= c1 else (c1, c0)
-        else:
-            self.cubes = None
-
-        self.active_cube = active_cube
         self.bridge_states = tuple(bridge_states)
 
-        if not self.is_split:
-            self._hash = hash((False, self.orientation, self.pos, self.bridge_states))
+        if not is_split:
+            self.orientation = orientation
+            self.pos = pos
+            self.cubes = None
+            self.active_cube = 0
+            self._hash = hash((False, orientation, pos, self.bridge_states))
         else:
-            self._hash = hash((True, self.cubes, self.active_cube, self.bridge_states))
+            c0, c1 = cubes
+            if c0 > c1:                      # hoán đổi thì phải đảo active_cube
+                c0, c1 = c1, c0
+                active_cube = 1 - active_cube
+            self.orientation = None
+            self.pos = None
+            self.cubes = (c0, c1)
+            self.active_cube = active_cube
+            self._hash = hash((True, self.cubes, active_cube, self.bridge_states))
 
-    #hàm cần code lại
     def __hash__(self) -> int:
         return self._hash
 
-    #hàm cần code lại
     def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, GameState):
+        if self is other:
+            return True
+        if not isinstance(other, GameState) or self._hash != other._hash:
             return False
         if self.is_split != other.is_split or self.bridge_states != other.bridge_states:
             return False
         if not self.is_split:
             return self.orientation == other.orientation and self.pos == other.pos
-        else:
-            return self.cubes == other.cubes and self.active_cube == other.active_cube
+        return self.cubes == other.cubes and self.active_cube == other.active_cube
 
-    #hàm cần code lại
-    def get_occupied_cells(self) -> List[Tuple[int, int]]:
-        """Trả về danh sách toạ độ (r, c) các ô mà khối đang chiếm giữ."""
+    def __repr__(self) -> str:
         if not self.is_split:
-            r, c = self.pos
-            if self.orientation == Orientation.STANDING:
-                return [(r, c)]
-            elif self.orientation == Orientation.HORIZONTAL:
-                return [(r, c), (r, c + 1)]
-            elif self.orientation == Orientation.VERTICAL:
-                return [(r, c), (r + 1, c)]
-        else:
-            return [self.cubes[0], self.cubes[1]]
-        return []
+            return f"GameState({self.orientation.name}, pos={self.pos}, bridges={self.bridge_states})"
+        return (f"GameState(SPLIT, cubes={self.cubes}, active={self.active_cube}, "
+                f"bridges={self.bridge_states})")
 
-    #hàm cần code lại
+    def get_occupied_cells(self) -> List[Tuple[int, int]]:
+        if self.is_split:
+            return list(self.cubes)
+        r, c = self.pos
+        if self.orientation == Orientation.STANDING:
+            return [(r, c)]
+        if self.orientation == Orientation.HORIZONTAL:
+            return [(r, c), (r, c + 1)]
+        return [(r, c), (r + 1, c)]          # VERTICAL
+
     def get_active_cube_pos(self) -> Optional[Tuple[int, int]]:
-        """Trả về toạ độ khối con đang điều khiển khi split."""
-        if self.is_split and self.cubes:
+        if self.is_split:
             return self.cubes[self.active_cube]
         return None
 
-    #hàm cần code lại
     def clone_with_active_cube(self, active_cube: int) -> 'GameState':
-        """Tạo bản sao trạng thái với khối con active mới."""
-        return GameState(
-            is_split=self.is_split,
-            orientation=self.orientation,
-            pos=self.pos,
-            cubes=self.cubes,
-            active_cube=active_cube,
-            bridge_states=self.bridge_states
-        )
+        if not self.is_split:
+            return self
+        return GameState(True, None, None, self.cubes, active_cube, self.bridge_states)
 
