@@ -15,7 +15,7 @@ import pygame
 
 from core.state import Direction, GameState, Orientation
 from core.board import BloxorzBoard
-from solvers import solve_bfs, solve_ids, solve_ucs, solve_astar, SearchResult
+from solvers import solve_bfs, solve_dfs, solve_ucs, solve_astar, SearchResult
 from gui.renderer import draw_iso_tile, draw_block, draw_rolling_block
 from gui.animator import PlaybackAnimator, MoveAnimation
 
@@ -200,7 +200,7 @@ class BloxorzGUI:
         card_h = 42
         self.btn_bfs = CardButton((p_x, y, panel_w, card_h), "BFS Solver", icon="[::]")
         y += 48
-        self.btn_dfs = CardButton((p_x, y, panel_w, card_h), "DFS (IDS) Solver", icon="[|]")
+        self.btn_dfs = CardButton((p_x, y, panel_w, card_h), "DFS Solver", icon="[|]")
         y += 48
         self.btn_ucs = CardButton((p_x, y, panel_w, card_h), "UCS Solver", icon="[-]")
         y += 48
@@ -302,7 +302,7 @@ class BloxorzGUI:
         if algo_name == "BFS":
             res = solve_bfs(self.board)
         elif algo_name == "DFS":
-            res = solve_ids(self.board, max_limit=35)
+            res = solve_dfs(self.board)
         elif algo_name == "UCS":
             res = solve_ucs(self.board, use_weighted_cost=True)
         elif algo_name == "A*":
