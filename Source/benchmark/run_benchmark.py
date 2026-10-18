@@ -14,7 +14,7 @@ if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8')
 
 from core.board import BloxorzBoard
-from solvers import solve_bfs, solve_ids, solve_ucs, solve_astar, SearchResult
+from solvers import solve_bfs, solve_dfs, solve_ucs, solve_astar, SearchResult
 from benchmark.plot_charts import plot_benchmark_charts
 
 
@@ -34,7 +34,7 @@ def run_all_benchmarks():
 
     algorithms = [
         ("BFS", lambda b: solve_bfs(b)),
-        ("DFS/IDS", lambda b: solve_ids(b, max_limit=30)),
+        ("DFS", lambda b: solve_dfs(b)),
         ("UCS", lambda b: solve_ucs(b, use_weighted_cost=True)),
         ("A*", lambda b: solve_astar(b, use_weighted_cost=True))
     ]

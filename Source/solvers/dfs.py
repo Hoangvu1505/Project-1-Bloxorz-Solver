@@ -1,54 +1,79 @@
 """
-Thuật toán tìm kiếm Depth-First Search (DFS) và Iterative Deepening Search (IDS).
+Thuật toán tìm kiếm theo chiều sâu (Depth-First Search - DFS).
 """
 
 import time
 import tracemalloc
-from typing import Dict, Tuple, Optional, List
+from typing import Dict, Tuple, Optional, List, Set
 
 from core.board import BloxorzBoard
 from core.state import GameState
 from solvers.base_solver import SearchResult, reconstruct_path
 
 
-#hàm cần code lại
-def solve_dfs(board: BloxorzBoard, max_depth: int = 150) -> SearchResult:
-    """Thuật toán tìm kiếm theo chiều sâu (DFS) có giới hạn độ sâu và tránh chu kỳ."""
+def solve_dfs(board: BloxorzBoard) -> SearchResult:
+    """
+    Thuật toán DFS.
+    
+    Đầu vào:
+        board (BloxorzBoard): Bàn cờ Bloxorz cần giải quyết.
+        
+    Đầu ra:
+        SearchResult: Đối tượng chứa đường đi tìm kiếm, thời gian, bộ nhớ đỉnh và số node đã duyệt.
+    """
+    # 1. Bắt đầu theo dõi tài nguyên hệ thống (RAM và thời gian)
     tracemalloc.start()
     start_time = time.perf_counter()
 
     initial_state = board.get_initial_state()
-    stack: List[Tuple[GameState, int]] = [(initial_state, 0)]
-    parent_map: Dict[GameState, Tuple[Optional[GameState], Optional[str], float]] = {
-        initial_state: (None, None, 0.0)
-    }
-    visited_at_depth: Dict[GameState, int] = {initial_state: 0}
+
+    # 2. Khởi tạo cấu trúc dữ liệu tìm kiếm
+    # Ngăn xếp (Stack) lưu trữ tuple: (trạng thái hiện tại, trạng thái cha, hành động, chi phí bước)
+    stack: List[Tuple[GameState, Optional[GameState], Optional[str], float]] = [
+        (initial_state, None, None, 0.0)
+    ]
+    
+    # Tập các trạng thái đã được lấy ra khỏi stack và mở rộng (Explored / Visited Set)
+    visited: Set[GameState] = set()
+    
+    # Bảng băm lưu vết cha để tái tạo đường đi: {state: (parent_state, action, step_cost)}
+    parent_map: Dict[GameState, Tuple[Optional[GameState], Optional[str], float]] = {}
+    
     expanded_nodes = 0
     solved = False
     goal_state = None
 
+    # 3. Vòng lặp duyệt DFS
     while stack:
-        curr_state, depth = stack.pop()
+        curr_state, parent_state, action, step_cost = stack.pop()
+
+        # Bỏ qua nếu trạng thái này đã được mở rộng trước đó
+        if curr_state in visited:
+            continue
+
+        # Đánh dấu trạng thái đã thăm và ghi nhận mối quan hệ cha - con vào parent_map
+        visited.add(curr_state)
+        parent_map[curr_state] = (parent_state, action, step_cost)
         expanded_nodes += 1
 
+        # Kiểm tra điều kiện đích (Goal Test khi node được lấy ra mở rộng)
         if board.is_goal_state(curr_state):
             solved = True
             goal_state = curr_state
             break
 
-        if depth >= max_depth:
-            continue
+        # Sinh các trạng thái kế tiếp và đẩy vào stack
+        # Sử dụng reversed(...) để giữ thứ tự duyệt tự nhiên (UP -> DOWN -> LEFT -> RIGHT)
+        for act, next_st, cost in reversed(board.get_successors(curr_state)):
+            if next_st not in visited:
+                stack.append((next_st, curr_state, act, cost))
 
-        for action, next_state, cost in reversed(board.get_successors(curr_state)):
-            if next_state not in visited_at_depth or depth + 1 < visited_at_depth[next_state]:
-                visited_at_depth[next_state] = depth + 1
-                parent_map[next_state] = (curr_state, action, cost)
-                stack.append((next_state, depth + 1))
-
+    # 4. Thu thập chỉ số hiệu năng
     search_time = time.perf_counter() - start_time
     current_mem, peak_mem = tracemalloc.get_traced_memory()
     tracemalloc.stop()
 
+    # 5. Đóng gói kết quả tìm kiếm
     if solved and goal_state:
         actions, states, total_cost = reconstruct_path(parent_map, goal_state)
         return SearchResult(
@@ -75,72 +100,4 @@ def solve_dfs(board: BloxorzBoard, max_depth: int = 150) -> SearchResult:
             peak_memory_kb=peak_mem / 1024.0
         )
 
-
-#hàm cần code lại
-def solve_ids(board: BloxorzBoard, max_limit: int = 100) -> SearchResult:
-    """Thuật toán tìm kiếm lặp sâu dần (Iterative Deepening Search - IDS)."""
-    tracemalloc.start()
-    start_time = time.perf_counter()
-
-    initial_state = board.get_initial_state()
-    total_expanded = 0
-
-    for depth_limit in range(1, max_limit + 1):
-        stack: List[Tuple[GameState, int]] = [(initial_state, 0)]
-        parent_map: Dict[GameState, Tuple[Optional[GameState], Optional[str], float]] = {
-            initial_state: (None, None, 0.0)
-        }
-        visited_at_depth: Dict[GameState, int] = {initial_state: 0}
-        solved = False
-        goal_state = None
-
-        while stack:
-            curr_state, depth = stack.pop()
-            total_expanded += 1
-
-            if board.is_goal_state(curr_state):
-                solved = True
-                goal_state = curr_state
-                break
-
-            if depth >= depth_limit:
-                continue
-
-            for action, next_state, cost in reversed(board.get_successors(curr_state)):
-                if next_state not in visited_at_depth or depth + 1 < visited_at_depth[next_state]:
-                    visited_at_depth[next_state] = depth + 1
-                    parent_map[next_state] = (curr_state, action, cost)
-                    stack.append((next_state, depth + 1))
-
-        if solved and goal_state:
-            search_time = time.perf_counter() - start_time
-            current_mem, peak_mem = tracemalloc.get_traced_memory()
-            tracemalloc.stop()
-            actions, states, total_cost = reconstruct_path(parent_map, goal_state)
-            return SearchResult(
-                algorithm="DFS/IDS",
-                solved=True,
-                actions=actions,
-                states_path=states,
-                expanded_nodes=total_expanded,
-                solution_length=len(actions),
-                total_cost=total_cost,
-                search_time=search_time,
-                peak_memory_kb=peak_mem / 1024.0
-            )
-
-    search_time = time.perf_counter() - start_time
-    current_mem, peak_mem = tracemalloc.get_traced_memory()
-    tracemalloc.stop()
-    return SearchResult(
-        algorithm="DFS/IDS",
-        solved=False,
-        actions=[],
-        states_path=[],
-        expanded_nodes=total_expanded,
-        solution_length=0,
-        total_cost=0.0,
-        search_time=search_time,
-        peak_memory_kb=peak_mem / 1024.0
-    )
 

@@ -153,7 +153,7 @@ if __name__ == "__main__":
 
     results = {}
     stage_names = []
-    algo_keys = ["BFS", "DFS/IDS", "UCS", "A*"]
+    algo_keys = ["BFS", "DFS", "UCS", "A*"]
 
     with open(csv_file, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
