@@ -37,6 +37,10 @@ class BloxorzBoard:
                 self.bridges[b.bridge_id] = b
                 self.bridge_list_ids.append(b.bridge_id)
         self.bridge_list_ids.sort()
+        # bridge_states là tuple theo thứ tự id đã sort -> tra index O(1)
+        self._bridge_index: Dict[int, int] = {
+            b_id: i for i, b_id in enumerate(self.bridge_list_ids)
+        }
 
         self.tile_to_bridge_id: Dict[Tuple[int, int], int] = {}
         for b_id, b_info in self.bridges.items():
@@ -64,51 +68,66 @@ class BloxorzBoard:
 
     def is_bridge_open(self, bridge_id: int, bridge_states: Tuple[bool, ...]) -> bool:
         """Kiểm tra cầu có mở không."""
-        try:
-            idx = self.bridge_list_ids.index(bridge_id)
-            return bridge_states[idx]
-        except ValueError:
+        idx = self._bridge_index.get(bridge_id)
+        if idx is None:
+            return False
+        return bridge_states[idx]
+
+    def is_valid_cell(self, r: int, c: int, bridge_states: Tuple[bool, ...]) -> bool:
+        """Ô (r, c) có thể đặt chân lên không.
+
+        Không hợp lệ (khối sẽ rơi) khi: ngoài biên, ô VOID, hoặc ô cầu đang đóng.
+        """
+        if not (0 <= r < self.rows and 0 <= c < self.cols):
             return False
 
-    #hàm cần code lại
-    def is_valid_cell(self, r: int, c: int, bridge_states: Tuple[bool, ...]) -> bool:
-        """Kiểm tra toạ độ (r, c) có phải là bề mặt hợp lệ có thể bước lên hay không."""
-        if r < 0 or r >= self.rows or c < 0 or c >= self.cols:
-            return False
         tile = self.grid[r][c]
         if tile == TileType.VOID:
             return False
+
         if tile == TileType.BRIDGE:
             b_id = self.tile_to_bridge_id.get((r, c))
+            # ô BRIDGE không thuộc cầu nào -> coi như không có nền
             if b_id is None or not self.is_bridge_open(b_id, bridge_states):
                 return False
         return True
 
-    #hàm cần code lại
     def is_state_valid(self, state: GameState) -> bool:
-        """Kiểm tra trạng thái khối có hợp lệ (không bị rơi) không."""
-        cells = state.get_occupied_cells()
-        for r, c in cells:
-            if not self.is_valid_cell(r, c, state.bridge_states):
+        """Trạng thái hợp lệ = khối không rơi.
+
+        - Mọi ô khối chiếm phải là nền hợp lệ (is_valid_cell).
+        - Khối ĐỨNG thẳng trên ô FRAGILE sẽ làm gạch vỡ -> rơi (không hợp lệ).
+        - Khối NẰM (chiếm 2 ô) trên FRAGILE thì an toàn vì trọng lượng được chia đều.
+        - Khối tách: theo luật của project, mỗi khối lập phương không được đứng trên FRAGILE.
+        """
+        bridges = state.bridge_states
+
+        if state.is_split:
+            for r, c in state.cubes:
+                if not self.is_valid_cell(r, c, bridges):
+                    return False
+                if self.grid[r][c] == TileType.FRAGILE:
+                    return False
+            return True
+
+        for r, c in state.get_occupied_cells():
+            if not self.is_valid_cell(r, c, bridges):
                 return False
 
-        if not state.is_split:
-            if state.orientation == Orientation.STANDING:
-                r, c = state.pos
-                if self.grid[r][c] == TileType.FRAGILE:
-                    return False
-        else:
-            for r, c in state.cubes:
-                if self.grid[r][c] == TileType.FRAGILE:
-                    return False
+        if state.orientation == Orientation.STANDING:
+            r, c = state.pos
+            if self.grid[r][c] == TileType.FRAGILE:
+                return False
         return True
 
-    #hàm cần code lại
     def is_goal_state(self, state: GameState) -> bool:
-        """Kiểm tra khối đã đứng thẳng vào ô đích hay chưa."""
-        if state.is_split:
+        """Thắng khi khối (không tách) ĐỨNG thẳng đúng ô đích.
+
+        Nằm ngang/dọc lên ô đích hoặc đang tách đôi thì chưa tính là thắng.
+        """
+        if state.is_split or state.orientation != Orientation.STANDING:
             return False
-        return state.orientation == Orientation.STANDING and state.pos == self.goal_pos
+        return state.pos == self.goal_pos
 
     #hàm cần code lại
     def _trigger_switches(
@@ -210,7 +229,9 @@ class BloxorzBoard:
                             active_cube=0,
                             bridge_states=new_bridges
                         )
-                        successors.append((move.value, final_state, step_cost))
+                        # Công tắc có thể đóng cầu ngay dưới nửa còn lại của khối -> phải rơi
+                        if self.is_state_valid(final_state):
+                            successors.append((move.value, final_state, step_cost))
 
         else:
             cube0, cube1 = state.cubes
@@ -325,4 +346,3 @@ class BloxorzBoard:
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
         with open(filepath, 'w', encoding='utf-8') as f:
             json.dump(self.to_dict(), f, indent=2, ensure_ascii=False)
-
