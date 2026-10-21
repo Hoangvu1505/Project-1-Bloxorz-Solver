@@ -307,6 +307,37 @@ def _draw_single_static_cube(surface, cr: int, cc: int, board, center_x: float, 
 
 
 #hàm cần code lại
+def draw_falling_block(
+    surface,
+    from_state: GameState,
+    to_state: GameState,
+    move_dir: str,
+    board,
+    center_x: float,
+    center_y: float,
+    roll_progress: float,
+    fall_progress: float,
+):
+    """Vẽ khối lăn tới vị trí lỗi rồi rơi dần xuống dưới bàn cờ."""
+    if fall_progress <= 0.0:
+        draw_rolling_block(
+            surface,
+            from_state,
+            to_state,
+            move_dir,
+            roll_progress,
+            board,
+            center_x,
+            center_y,
+        )
+        return
+
+    falling_surface = pygame.Surface(surface.get_size(), pygame.SRCALPHA)
+    draw_block(falling_surface, to_state, board, center_x, center_y)
+    offset_y = int((surface.get_height() * 0.8) * min(1.0, max(0.0, fall_progress)))
+    surface.blit(falling_surface, (0, offset_y))
+
+
 def draw_rolling_block(surface, from_state: GameState, to_state: GameState, move_dir: str, progress: float, board, center_x: float, center_y: float):
     """Vẽ animation khối Bloxorz đang lăn 3D giữa 2 trạng thái."""
     import math
