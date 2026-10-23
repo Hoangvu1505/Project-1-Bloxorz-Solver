@@ -61,6 +61,40 @@ class MoveAnimation:
         return self.progress
 
 
+class FallingAnimation:
+    """Diễn hoạt khối lăn ra ngoài rồi rơi khỏi bàn cờ."""
+    def __init__(self, from_state, to_state, move_dir: str, duration: float = 0.85):
+        self.duration = max(0.1, duration)
+        self.from_state = from_state
+        self.to_state = to_state
+        self.move_dir = move_dir
+        self.start_time = time.time()
+        self.progress = 0.0
+        self.is_finished = False
+        self.roll_progress = 0.0
+        self.fall_progress = 0.0
+
+    def update(self) -> float:
+        elapsed = time.time() - self.start_time
+        if elapsed >= self.duration:
+            self.progress = 1.0
+            self.roll_progress = 1.0
+            self.fall_progress = 1.0
+            self.is_finished = True
+            return self.progress
+
+        t = elapsed / self.duration
+        self.progress = t
+        roll_end = 0.42
+        if t <= roll_end:
+            self.roll_progress = t / roll_end
+            self.fall_progress = 0.0
+        else:
+            self.roll_progress = 1.0
+            self.fall_progress = ((t - roll_end) / (1.0 - roll_end)) ** 2
+        return self.progress
+
+
 class PlaybackAnimator:
     """Bộ điều khiển diễn hoạt đường đi giải đố."""
     def __init__(self):
@@ -144,4 +178,3 @@ class PlaybackAnimator:
         else:
             self.is_playing = False
             return None, None
-
