@@ -9,12 +9,12 @@ from core.state import Orientation, GameState
 from core.special_tiles import TileType, SwitchType
 
 # Thông số kích thước khối và sàn
-TILE_W = 48
+TILE_W = 40
 TILE_H = 24
 TILE_DEPTH = 14
 
-BLOCK_H_LYING = 50 #nằm 
-BLOCK_H_STANDING = 96 #đứng
+BLOCK_H_LYING = 40 #nằm 
+BLOCK_H_STANDING = 80 #đứng
 BLOCK_H = BLOCK_H_LYING
 
 # Bảng màu sàn

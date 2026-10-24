@@ -748,7 +748,7 @@ class BloxorzGUI:
     def draw_board(self):
         """Vẽ toàn bộ bàn cờ tự động căn giữa ở phần còn lại của màn hình."""
         screen_w, screen_h = self.screen.get_size()
-        center_x = (screen_w - 360) / 2.0 - 20
+        center_x = (screen_w - 360) / 2.0+30
         center_y = screen_h / 2.0 + 35
 
         for r in range(self.board.rows):
