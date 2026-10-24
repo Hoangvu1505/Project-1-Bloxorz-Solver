@@ -1,0 +1,35 @@
+{
+  "name": "Stage 19: Fractured Skyway",
+  "start": [13, 8],
+  "goal": [2, 8],
+  "grid": [
+    [1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
+    [1, 1, 1, 0, 0, 0, 0, 0, 1, 1],
+    [1, 1, 1, 0, 0, 0, 0, 1, 2, 1],
+    [0, 4, 0, 0, 0, 0, 0, 1, 1, 1],
+    [0, 4, 0, 0, 0, 0, 0, 0, 4, 0],
+    [1, 1, 1, 0, 0, 0, 0, 0, 4, 0],
+    [1, 1, 1, 1, 0, 0, 0, 1, 1, 1],
+    [1, 1, 1, 0, 0, 1, 1, 1, 1, 1],
+    [0, 4, 0, 0, 0, 0, 0, 1, 1, 1],
+    [0, 4, 0, 0, 0, 0, 0, 0, 1, 0],
+    [0, 1, 1, 1, 0, 0, 0, 0, 1, 0],
+    [0, 0, 4, 1, 0, 0, 0, 0, 1, 0],
+    [0, 0, 4, 1, 0, 0, 0, 1, 1, 1],
+    [0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+    [0, 0, 1, 1, 1, 0, 0, 1, 1, 1]
+  ],
+  "bridges": [
+    {"id": 1, "tiles": [[8, 1], [9, 1]], "initial_open": true},
+    {"id": 2, "tiles": [[3, 1], [4, 1]], "initial_open": false},
+    {"id": 3, "tiles": [[11, 2], [12, 2]], "initial_open": false},
+    {"id": 4, "tiles": [[4, 8], [5, 8]], "initial_open": true}
+  ],
+  "switches": [
+    {"pos": [7, 5], "type": "split", "action": "toggle", "bridge_ids": [], "split_targets": [[1, 1], [7, 8]]},
+    {"pos": [3, 7], "type": "soft", "action": "toggle", "bridge_ids": [1]},
+    {"pos": [3, 9], "type": "soft", "action": "toggle", "bridge_ids": [1]},
+    {"pos": [6, 3], "type": "soft", "action": "toggle", "bridge_ids": [1, 2, 3]},
+    {"pos": [2, 1], "type": "heavy", "action": "permanent", "bridge_ids": [1]}
+  ]
+}
