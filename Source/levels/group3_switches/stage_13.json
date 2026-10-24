@@ -1,0 +1,29 @@
+{
+  "name": "Stage 13: Skyway Switchback",
+  "start": [1, 1],
+  "goal": [9, 7],
+  "grid": [
+    [1, 1, 1, 0, 1, 1, 1, 1, 0],
+    [1, 1, 1, 0, 1, 1, 1, 1, 1],
+    [1, 1, 1, 0, 1, 1, 1, 1, 1],
+    [0, 1, 0, 0, 1, 1, 1, 1, 0],
+    [0, 1, 0, 0, 4, 0, 0, 1, 0],
+    [0, 1, 0, 0, 4, 0, 0, 1, 0],
+    [0, 4, 0, 0, 1, 0, 0, 4, 0],
+    [0, 4, 0, 0, 1, 0, 0, 4, 0],
+    [1, 1, 1, 1, 1, 0, 1, 1, 1],
+    [0, 1, 1, 1, 1, 0, 1, 2, 1],
+    [0, 1, 1, 1, 1, 0, 1, 1, 1]
+  ],
+  "bridges": [
+    {"id": 1, "tiles": [[6, 1], [7, 1]], "initial_open": false},
+    {"id": 2, "tiles": [[6, 7], [7, 7]], "initial_open": true},
+    {"id": 3, "tiles": [[4, 4], [5, 4]], "initial_open": true}
+  ],
+  "switches": [
+    {"pos": [4, 1], "type": "soft", "action": "toggle", "bridge_ids": [1]},
+    {"pos": [9, 2], "type": "soft", "action": "toggle", "bridge_ids": []},
+    {"pos": [6, 4], "type": "soft", "action": "toggle", "bridge_ids": [2]},
+    {"pos": [0, 7], "type": "soft", "action": "permanent", "bridge_ids": [2]}
+  ]
+}
