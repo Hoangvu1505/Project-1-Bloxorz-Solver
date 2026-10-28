@@ -21,6 +21,7 @@ __pycache__/
 .coverage
 htmlcov/
 .mypy_cache/
+results/
 
 # 4. Trình soạn thảo & IDE (VS Code, PyCharm, v.v.)
 .vscode/
@@ -41,3 +42,6 @@ Desktop.ini
 *.log
 *.tmp
 *.bak
+
+# 7. Document 
+*.pdf
