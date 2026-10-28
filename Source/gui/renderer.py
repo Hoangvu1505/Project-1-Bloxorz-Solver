@@ -69,10 +69,23 @@ def grid_to_iso(r: float, c: float, rows: int, cols: int, center_x: float, cente
 
 
 #hàm cần code lại
-def draw_iso_tile(surface, r: int, c: int, tile_type: int, board, bridge_states, font_bold, center_x: float, center_y: float):
+def draw_iso_tile(
+    surface,
+    r: int,
+    c: int,
+    tile_type: int,
+    board,
+    bridge_states,
+    font_bold,
+    center_x: float,
+    center_y: float,
+    show_goal: bool = True,
+):
     """Vẽ ô sàn isometric 3D."""
 
     if tile_type == TileType.VOID:
+        return
+    if tile_type == TileType.GOAL and not show_goal:
         return
 
     cx, cy = grid_to_iso(r, c, board.rows, board.cols, center_x, center_y)
@@ -334,8 +347,26 @@ def draw_falling_block(
 
     falling_surface = pygame.Surface(surface.get_size(), pygame.SRCALPHA)
     draw_block(falling_surface, to_state, board, center_x, center_y)
-    offset_y = int((surface.get_height() * 0.8) * min(1.0, max(0.0, fall_progress)))
-    surface.blit(falling_surface, (0, offset_y))
+    bounds = falling_surface.get_bounding_rect()
+    if bounds.width == 0 or bounds.height == 0:
+        return
+
+    block_image = falling_surface.subsurface(bounds).copy()
+    scale = 1.0 - 0.55 * min(1.0, max(0.0, fall_progress))
+    scaled_size = (
+        max(1, int(block_image.get_width() * scale)),
+        max(1, int(block_image.get_height() * scale)),
+    )
+    block_image = pygame.transform.smoothscale(block_image, scaled_size)
+    block_image.set_alpha(int(255 * (1.0 - fall_progress)))
+
+    # The block sinks into the void instead of teleporting downward.
+    center_x_pos = bounds.centerx
+    center_y_pos = bounds.centery + int(TILE_H * 2.2 * fall_progress)
+    target_rect = block_image.get_rect(
+        center=(center_x_pos, center_y_pos)
+    )
+    surface.blit(block_image, target_rect)
 
 
 def draw_rolling_block(surface, from_state: GameState, to_state: GameState, move_dir: str, progress: float, board, center_x: float, center_y: float):
