@@ -1,73 +1,107 @@
 """
-Thuật toán tìm kiếm Breadth-First Search (BFS).
+Thuật toán tìm kiếm theo chiều rộng (Breadth-First Search - BFS).
 """
 
 import time
 import tracemalloc
 from collections import deque
-from typing import Dict, Tuple, Optional, Hashable
+from typing import Dict, Tuple, Optional, List, Set
 
 from core.board import BloxorzBoard
 from core.state import GameState
 from solvers.base_solver import SearchResult, reconstruct_path
 
 
-def _state_key(state: GameState) -> Hashable:
-    """Khoá nhận dạng trạng thái để loại trùng trong `visited`.
-
-    GameState.__eq__/__hash__ có tính `active_cube` (cube vừa di chuyển), nhưng
-    get_successors luôn sinh nước đi cho cả hai khối nên nó không ảnh hưởng tương lai.
-    Bỏ nó đi để cùng một cấu hình không bị tính thành 2 trạng thái khác nhau.
-    (`cubes` đã được GameState sắp xếp sẵn nên không cần sort lại.)
-    """
-    return (state.is_split, state.orientation, state.pos, state.cubes, state.bridge_states)
-
-
 def solve_bfs(board: BloxorzBoard) -> SearchResult:
-    """Tìm kiếm theo chiều rộng (BFS).
-
-    BFS cho lời giải ít bước nhất. Vì chi phí mỗi bước không đồng đều
-    (gạch yếu, công tắc, tách/gộp), đó chưa chắc là lời giải tổng chi phí nhỏ nhất.
     """
+    Thuật toán BFS.
+
+    Đầu vào:
+        board (BloxorzBoard): Bàn cờ Bloxorz cần giải quyết.
+
+    Đầu ra:
+        SearchResult: Đối tượng chứa đường đi tìm kiếm, thời gian, bộ nhớ đỉnh và số node đã duyệt.
+    """
+    # 1. Bắt đầu theo dõi tài nguyên hệ thống (RAM và thời gian)
     tracemalloc.start()
     start_time = time.perf_counter()
 
     initial_state = board.get_initial_state()
 
+    # Kiểm tra nhanh nếu trạng thái bắt đầu đã là đích
+    if board.is_goal_state(initial_state):
+        _, peak_mem = tracemalloc.get_traced_memory()
+        tracemalloc.stop()
+        return SearchResult(
+            algorithm="BFS",
+            solved=True,
+            actions=[],
+            states_path=[initial_state],
+            expanded_nodes=0,
+            solution_length=0,
+            total_cost=0.0,
+            search_time=time.perf_counter() - start_time,
+            peak_memory_kb=peak_mem / 1024.0
+        )
+
+    # 2. Khởi tạo cấu trúc dữ liệu tìm kiếm
+    # Hàng đợi (Queue - FIFO) lưu trữ các trạng thái chờ mở rộng
+    queue: deque[GameState] = deque([initial_state])
+
+    # Tập các trạng thái đã ghé thăm (Visited Set) để tránh lặp chu kỳ
+    visited: Set[GameState] = {initial_state}
+
+    # Bảng băm lưu vết cha để tái tạo đường đi: {state: (parent_state, action, step_cost)}
     parent_map: Dict[GameState, Tuple[Optional[GameState], Optional[str], float]] = {
         initial_state: (None, None, 0.0)
     }
-    visited = {_state_key(initial_state)}
-    queue: deque = deque([initial_state])
+
     expanded_nodes = 0
+    solved = False
+    goal_state: Optional[GameState] = None
 
-    goal_state: Optional[GameState] = (
-        initial_state if board.is_goal_state(initial_state) else None
-    )
-
-    while queue and goal_state is None:
+    # 3. Vòng lặp duyệt BFS
+    while queue:
         curr_state = queue.popleft()
         expanded_nodes += 1
 
+        # Mở rộng các trạng thái kế tiếp từ curr_state
         for action, next_state, cost in board.get_successors(curr_state):
-            key = _state_key(next_state)
-            if key in visited:
-                continue
-            visited.add(key)
-            parent_map[next_state] = (curr_state, action, cost)
+            if next_state not in visited:
+                visited.add(next_state)
+                parent_map[next_state] = (curr_state, action, cost)
 
-            # Goal-test lúc sinh nút: BFS nên dừng sớm, tiết kiệm một tầng mở rộng.
-            if board.is_goal_state(next_state):
-                expanded_nodes += 1
-                goal_state = next_state
-                break
-            queue.append(next_state)
+                # Kiểm tra đích sớm ngay khi sinh node (Goal Test chuẩn BFS theo giáo trình AIMA)
+                if board.is_goal_state(next_state):
+                    solved = True
+                    goal_state = next_state
+                    break
 
+                queue.append(next_state)
+
+        if solved:
+            break
+
+    # 4. Thu thập chỉ số hiệu năng
     search_time = time.perf_counter() - start_time
     _, peak_mem = tracemalloc.get_traced_memory()
     tracemalloc.stop()
 
-    if goal_state is None:
+    # 5. Đóng gói kết quả tìm kiếm
+    if solved and goal_state:
+        actions, states, total_cost = reconstruct_path(parent_map, goal_state)
+        return SearchResult(
+            algorithm="BFS",
+            solved=True,
+            actions=actions,
+            states_path=states,
+            expanded_nodes=expanded_nodes,
+            solution_length=len(actions),
+            total_cost=total_cost,
+            search_time=search_time,
+            peak_memory_kb=peak_mem / 1024.0
+        )
+    else:
         return SearchResult(
             algorithm="BFS",
             solved=False,
@@ -78,17 +112,4 @@ def solve_bfs(board: BloxorzBoard) -> SearchResult:
             total_cost=0.0,
             search_time=search_time,
             peak_memory_kb=peak_mem / 1024.0
-        )
-
-    actions, states, total_cost = reconstruct_path(parent_map, goal_state)
-    return SearchResult(
-        algorithm="BFS",
-        solved=True,
-        actions=actions,
-        states_path=states,
-        expanded_nodes=expanded_nodes,
-        solution_length=len(actions),
-        total_cost=total_cost,
-        search_time=search_time,
-        peak_memory_kb=peak_mem / 1024.0
-    )
+        )
