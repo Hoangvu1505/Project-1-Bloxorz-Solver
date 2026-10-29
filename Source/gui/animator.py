@@ -8,12 +8,45 @@ from typing import List, Optional, Tuple
 from core.state import GameState, Orientation
 
 
+def get_moving_split_cube_index(
+    from_st: GameState,
+    to_st: Optional[GameState] = None,
+    action: Optional[str] = None,
+) -> int:
+    """Xác định chỉ số viên lập phương (0 hoặc 1) thực sự di chuyển khi tách khối."""
+    if not from_st.is_split:
+        return 0
+
+    if action:
+        act_upper = str(action).upper()
+        if "CUBE1" in act_upper:
+            return 0
+        if "CUBE2" in act_upper:
+            return 1
+
+    if to_st is not None:
+        if to_st.is_split:
+            if from_st.cubes[0] in to_st.cubes and from_st.cubes[1] not in to_st.cubes:
+                return 1
+            if from_st.cubes[1] in to_st.cubes and from_st.cubes[0] not in to_st.cubes:
+                return 0
+        else:
+            occupied = to_st.get_occupied_cells()
+            if from_st.cubes[0] in occupied and from_st.cubes[1] not in occupied:
+                return 1
+            if from_st.cubes[1] in occupied and from_st.cubes[0] not in occupied:
+                return 0
+
+    return from_st.active_cube
+
+
 def detect_direction(from_st: GameState, to_st: GameState) -> str:
     """Tự động suy luận hướng di chuyển giữa 2 trạng thái liên tiếp."""
     if from_st.is_split and to_st.is_split:
-        act_idx = from_st.active_cube
+        act_idx = get_moving_split_cube_index(from_st, to_st)
         r0, c0 = from_st.cubes[act_idx]
-        r1, c1 = to_st.cubes[act_idx] if act_idx < len(to_st.cubes) else (r0, c0)
+        inact_pos = from_st.cubes[1 - act_idx]
+        r1, c1 = to_st.cubes[1] if to_st.cubes[0] == inact_pos else to_st.cubes[0]
         if c1 > c0: return "RIGHT"
         if c1 < c0: return "LEFT"
         if r1 > r0: return "DOWN"
@@ -97,6 +130,8 @@ class FallingAnimation:
 
 class PlaybackAnimator:
     """Bộ điều khiển diễn hoạt đường đi giải đố."""
+    SPLIT_SPEED_FACTOR = 0.75
+
     def __init__(self):
         self.is_playing = False
         self.current_step = 0
@@ -154,10 +189,14 @@ class PlaybackAnimator:
         if self.active_animation is not None:
             self.active_animation.update()
             if self.active_animation.is_finished:
+                was_split = self.active_animation.from_state.is_split
                 self.current_step += 1
                 completed_state = self.active_animation.to_state
                 self.active_animation = None
-                self.pause_timer = curr_time + (0.05 / self.speed)
+                effective_speed = (
+                    self.speed * self.SPLIT_SPEED_FACTOR if was_split else self.speed
+                )
+                self.pause_timer = curr_time + (0.05 / effective_speed)
                 return completed_state, None
             return None, self.active_animation
 
@@ -172,9 +211,17 @@ class PlaybackAnimator:
                 if actions_path and self.current_step < len(actions_path)
                 else detect_direction(from_st, to_st)
             )
-            duration = max(0.06, 0.22 / self.speed)
+            if from_st.is_split:
+                moving_idx = get_moving_split_cube_index(from_st, to_st, act)
+                if from_st.active_cube != moving_idx:
+                    from_st = from_st.clone_with_active_cube(moving_idx)
+                effective_speed = self.speed * self.SPLIT_SPEED_FACTOR
+            else:
+                effective_speed = self.speed
+
+            duration = max(0.06, 0.22 / effective_speed)
             self.active_animation = MoveAnimation(from_st, to_st, act, duration)
-            return None, self.active_animation
+            return from_st, self.active_animation
         else:
             self.is_playing = False
             return None, None

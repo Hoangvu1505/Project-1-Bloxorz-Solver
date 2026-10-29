@@ -39,7 +39,7 @@ def discover_stage_files(base_levels_dir: str) -> List[str]:
     stage_files = sorted(glob.glob(os.path.join(base_levels_dir, "*", "stage_*.json")))
     if not stage_files:
         stage_files = sorted(glob.glob(os.path.join(source_dir, "stages", "stage_*.json")))
-    return stage_files
+    return [f for f in stage_files if os.path.exists(f) and os.path.getsize(f) > 0]
 
 
 def export_benchmark_results(

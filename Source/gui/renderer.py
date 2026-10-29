@@ -7,6 +7,7 @@ from typing import Tuple, List, Optional
 import pygame
 from core.state import Orientation, GameState
 from core.special_tiles import TileType, SwitchType
+from gui.animator import get_moving_split_cube_index
 
 # Thông số kích thước khối và sàn
 TILE_W = 40
@@ -380,24 +381,21 @@ def draw_falling_block(
 
 def draw_rolling_block(surface, from_state: GameState, to_state: GameState, move_dir: str, progress: float, board, center_x: float, center_y: float):
     """Vẽ animation khối Bloxorz đang lăn 3D giữa 2 trạng thái."""
-    import math
-
-
-    # Nếu là các hiệu ứng đặc biệt tách / gộp (SPLIT / MERGE)
     d_upper = str(move_dir).upper()
-    if "SPLIT" in d_upper or "MERGE" in d_upper:
+    has_roll_dir = any(d in d_upper for d in ("RIGHT", "LEFT", "DOWN", "UP"))
+
+    # Nếu là hiệu ứng tách khối (SPLIT) hoặc không có hướng lăn cụ thể
+    if "SPLIT" in d_upper or ("MERGE" in d_upper and not has_roll_dir):
         st = to_state if progress >= 0.5 else from_state
         draw_block(surface, st, board, center_x, center_y)
         return
 
     # Xác định hình hộp ban đầu (r_min, r_max, c_min, c_max, z_min, z_max)
+    inact_pos = None
     if from_state.is_split:
-        active_idx = from_state.active_cube
+        active_idx = get_moving_split_cube_index(from_state, to_state, move_dir)
         inactive_idx = 1 - active_idx
-
-        # Vẽ viên thụ động tĩnh
-        inact_r, inact_c = from_state.cubes[inactive_idx]
-        _draw_single_static_cube(surface, inact_r, inact_c, board, center_x, center_y, is_active=False)
+        inact_pos = from_state.cubes[inactive_idx]
 
         # Viên chủ động lăn
         act_r, act_c = from_state.cubes[active_idx]
@@ -522,6 +520,13 @@ def draw_rolling_block(surface, from_state: GameState, to_state: GameState, move
         rot_3d_verts[k] = (r_rot, c_rot, z_rot)
         proj_verts[k] = project_3d(r_rot, c_rot, z_rot)
 
+    curr_r = sum(rot_3d_verts[k][0] for k in raw_verts) / 8.0
+    curr_c = sum(rot_3d_verts[k][1] for k in raw_verts) / 8.0
+
+    # Nếu viên tĩnh nằm ở phía sau viên đang lăn thì vẽ trước
+    if inact_pos is not None and (inact_pos[0] + inact_pos[1] <= curr_r + curr_c):
+        _draw_single_static_cube(surface, inact_pos[0], inact_pos[1], board, center_x, center_y, is_active=False)
+
     # 6 mặt của khối hộp (các đỉnh theo thứ tự viền ngoài)
     faces_def = [
         ("top", [(0,0,1), (0,1,1), (1,1,1), (1,0,1)], (0.0, 0.0, 1.0)),
@@ -592,3 +597,18 @@ def draw_rolling_block(surface, from_state: GameState, to_state: GameState, move
 
         pygame.draw.polygon(surface, col_fill, pts_2d)
         pygame.draw.polygon(surface, col_border, pts_2d, width=bw)
+
+    # Nếu viên tĩnh nằm ở phía trước viên đang lăn thì vẽ đè lên sau
+    if inact_pos is not None and (inact_pos[0] + inact_pos[1] > curr_r + curr_c):
+        _draw_single_static_cube(surface, inact_pos[0], inact_pos[1], board, center_x, center_y, is_active=False)
+
+    # Vẽ mũi tên chỉ báo phía trên viên chủ động đang lăn
+    if is_active_cube:
+        max_z = max(rot_3d_verts[k][2] for k in raw_verts)
+        ax, ay = project_3d(curr_r, curr_c, max_z)
+        arrow_pts = [
+            (ax, ay - TILE_H - 14),
+            (ax - 6, ay - TILE_H - 24),
+            (ax + 6, ay - TILE_H - 24),
+        ]
+        pygame.draw.polygon(surface, (234, 179, 8), arrow_pts)

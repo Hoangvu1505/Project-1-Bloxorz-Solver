@@ -223,6 +223,7 @@ class BloxorzGUI:
         """Find all levels and sort them by the number in their filename."""
         pattern = os.path.join(base_dir, folder_name, "*", "stage_*.json")
         files = glob.glob(pattern)
+        files = [f for f in files if os.path.exists(f) and os.path.getsize(f) > 0]
 
         def level_number(filepath: str) -> tuple[float, str]:
             filename = os.path.basename(filepath)
@@ -692,39 +693,43 @@ class BloxorzGUI:
             (
                 "RULES AND CONTROLS",
                 [
-                    ("GOAL", "Move the block onto the goal while standing upright."),
-                    ("MOVEMENT", "Use W A S D or the arrow keys to roll the block."),
-                    ("ORIENTATION", "The block can stand upright or lie horizontally or vertically."),
-                    ("RULE", "If the block falls off the platform or onto an invalid tile, you lose."),
+                    ("GOAL", "Roll the block to the goal and stand upright on it to win."),
+                    ("CONTROLS", "Use W A S D or Arrow keys. Press Space to switch split cubes."),
+                    ("HOTKEYS", "R: Restart | N/P: Next/Prev | F11: Fullscreen | 0: Reset 3D."),
+                    ("SOLVER", "Test BFS, DFS, UCS, A* solvers with auto-replay & speed controls."),
                 ],
             ),
             (
                 "GOAL TILE",
                 [
-                    ("FUNCTION", "The yellow tile marks the destination for the block."),
-                    ("MECHANIC", "The block must stand upright and cover the goal to win."),
+                    ("APPEARANCE", "The emerald green tile (mint diamond) marks the destination."),
+                    ("VICTORY", "The block must stand vertically upright to fall through the goal hole."),
+                    ("RESTRICTION", "Lying across the goal or single split cubes cannot trigger a win."),
                 ],
             ),
             (
                 "FRAGILE TILE",
                 [
-                    ("FUNCTION", "The orange tile is weak and can break."),
-                    ("MECHANIC", "Do not stand upright on it; roll across it using the block's long side."),
+                    ("PROPERTIES", "The orange cross-hatched tile is fragile and breaks under heavy weight."),
+                    ("SAFE ROLL", "Roll horizontally or vertically across it using the lying block."),
+                    ("DANGER", "Standing upright or placing single cubes on it will break and fall."),
                 ],
             ),
             (
                 "BRIDGE",
                 [
-                    ("FUNCTION", "Bridges are blue tiles that connect paths or extend the platform."),
-                    ("MECHANIC", "A closed bridge creates a gap; linked switches open or close it."),
+                    ("FUNCTION", "Cyan tiles that form pathways connecting isolated platforms over the void."),
+                    ("STATUS", "Open bridges (cyan) are solid; closed bridges leave empty space."),
+                    ("CONTROL", "Controlled by linked switches; can be toggled or permanently opened."),
                 ],
             ),
             (
                 "SWITCHES",
                 [
-                    ("SOFT / S", "Activates when the block lies on the switch, usually toggling a bridge."),
-                    ("HEAVY / H", "Activates only when the block stands upright on the switch."),
-                    ("SPLIT / P", "Splits the block into two cubes; press Space to switch the active cube."),
+                    ("SOFT (ROUND)", "Activated by any touch (standing, lying, or cube) to toggle bridges."),
+                    ("HEAVY (X)", "Only activated when a solid block stands upright; single cubes cannot press it."),
+                    ("SPLIT ( ( ) )", "Stand upright on it to split into two 1x1 cubes. Press Space to switch."),
+                    ("REUNITE", "Roll two single cubes adjacent to each other to merge back into 1x1x2."),
                 ],
             ),
         ]
@@ -739,6 +744,7 @@ class BloxorzGUI:
             card_x = image_rect.right + 20
             card_h = 62
             y = 205
+
         else:
             self._draw_special_tile_illustration(
                 self.guide_page,
@@ -747,8 +753,9 @@ class BloxorzGUI:
             )
             card_w = min(500, screen_w - 390)
             card_x = center_x - 20
-            card_h = 82
-            y = 205
+            card_h = 70 if len(sections) > 3 else 82
+            y = 195 if len(sections) > 3 else 205
+
 
         for heading, description in sections:
             card_rect = pygame.Rect(card_x, y, card_w, card_h)

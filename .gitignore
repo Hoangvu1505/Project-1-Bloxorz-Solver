@@ -44,4 +44,15 @@ Desktop.ini
 *.bak
 
 # 7. Document 
+# 7. Document & Report (LaTeX / BibTeX)
 *.pdf
+*.tex
+*.bib
+*.aux
+*.bbl
+*.blg
+*.fls
+*.fdb_latexmk
+*.synctex*
+*.toc
+*.out
