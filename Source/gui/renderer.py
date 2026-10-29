@@ -36,10 +36,27 @@ COLOR_BRIDGE_OPEN_RIGHT = (3, 105, 161)
 COLOR_BRIDGE_CLOSED_TOP = (22, 29, 42)
 COLOR_BRIDGE_CLOSED_BORDER = (40, 52, 72)
 
-COLOR_GOAL_TOP = (217, 119, 6)
-COLOR_GOAL_LEFT = (180, 83, 9)
-COLOR_GOAL_RIGHT = (146, 64, 14)
-COLOR_GOAL_DIAMOND = (254, 240, 138)
+# Bảng màu ô đích (Goal) - Xanh lá sáng (Mint / Emerald Green)
+COLOR_GOAL_TOP = (57, 241, 167)
+COLOR_GOAL_LEFT = (40, 195, 130)
+COLOR_GOAL_RIGHT = (28, 155, 102)
+COLOR_GOAL_DIAMOND = (57, 241, 167)
+
+# Bảng màu ô công tắc (Switches)
+# 1. Soft switch (Màu cam/vàng - vòng tròn elip trắng)
+COLOR_SWITCH_SOFT_TOP = (237, 134, 19)
+COLOR_SWITCH_SOFT_LEFT = (195, 110, 15)
+COLOR_SWITCH_SOFT_RIGHT = (160, 90, 12)
+
+# 2. Heavy switch (Màu đỏ - chữ X trắng)
+COLOR_SWITCH_HEAVY_TOP = (222, 48, 56)
+COLOR_SWITCH_HEAVY_LEFT = (180, 38, 45)
+COLOR_SWITCH_HEAVY_RIGHT = (145, 30, 36)
+
+# 3. Split switch (Màu tím - ký hiệu () trắng)
+COLOR_SWITCH_SPLIT_TOP = (190, 63, 240)
+COLOR_SWITCH_SPLIT_LEFT = (155, 50, 195)
+COLOR_SWITCH_SPLIT_RIGHT = (125, 40, 160)
 
 # Bảng màu khối Bloxorz
 COLOR_BLOCK_TOP = (56, 189, 248)
@@ -115,6 +132,16 @@ def draw_iso_tile(
     else:
         col_top, col_left, col_right = COLOR_FLOOR_TOP, COLOR_FLOOR_LEFT, COLOR_FLOOR_RIGHT
 
+    # Nếu ô là ô công tắc: đổi màu toàn bộ ô theo loại công tắc (Soft, Heavy, Split)
+    if (r, c) in board.switches:
+        sw = board.switches[(r, c)]
+        if sw.switch_type == SwitchType.SOFT:
+            col_top, col_left, col_right = COLOR_SWITCH_SOFT_TOP, COLOR_SWITCH_SOFT_LEFT, COLOR_SWITCH_SOFT_RIGHT
+        elif sw.switch_type == SwitchType.HEAVY:
+            col_top, col_left, col_right = COLOR_SWITCH_HEAVY_TOP, COLOR_SWITCH_HEAVY_LEFT, COLOR_SWITCH_HEAVY_RIGHT
+        elif sw.switch_type == SwitchType.SPLIT:
+            col_top, col_left, col_right = COLOR_SWITCH_SPLIT_TOP, COLOR_SWITCH_SPLIT_LEFT, COLOR_SWITCH_SPLIT_RIGHT
+
     top_pts = [(cx, cy - TILE_H), (cx + TILE_W, cy), (cx, cy + TILE_H), (cx - TILE_W, cy)]
     left_pts = [(cx - TILE_W, cy), (cx, cy + TILE_H), (cx, cy + TILE_H + TILE_DEPTH), (cx - TILE_W, cy + TILE_DEPTH)]
     right_pts = [(cx, cy + TILE_H), (cx + TILE_W, cy), (cx + TILE_W, cy + TILE_DEPTH), (cx, cy + TILE_H + TILE_DEPTH)]
@@ -129,44 +156,26 @@ def draw_iso_tile(
     pygame.draw.polygon(surface, col_top, top_pts)
     pygame.draw.polygon(surface, COLOR_FLOOR_BORDER, top_pts, width=1)
 
-    # Nếu là ô Goal: vẽ bệ vàng kim với kim cương phát sáng
-    if tile_type == TileType.GOAL:
-        d_sz = 10
-        diamond_pts = [
-            (cx, cy - d_sz),
-            (cx + d_sz * 1.5, cy),
-            (cx, cy + d_sz),
-            (cx - d_sz * 1.5, cy)
-        ]
-        pygame.draw.polygon(surface, COLOR_GOAL_DIAMOND, diamond_pts)
-        pygame.draw.polygon(surface, (255, 255, 255), diamond_pts, width=1)
 
     # Nếu là ô Fragile: hoa văn gạch chia ô
     if tile_type == TileType.FRAGILE:
         pygame.draw.line(surface, COLOR_FRAGILE_MARK, (cx - 10, cy - 5), (cx + 12, cy + 6), 2)
         pygame.draw.line(surface, COLOR_FRAGILE_MARK, (cx + 5, cy - 8), (cx - 7, cy + 9), 2)
 
-    # Nếu ô có công tắc: vẽ huy hiệu tròn với ký tự S / H / P
+    # Nếu ô có công tắc: vẽ biểu tượng phẳng màu trắng lên mặt trên ô
     if (r, c) in board.switches:
         sw = board.switches[(r, c)]
         if sw.switch_type == SwitchType.SOFT:
-            # Huy hiệu S tròn vàng
-            pygame.draw.circle(surface, (251, 191, 36), (int(cx), int(cy)), 9)
-            pygame.draw.circle(surface, (180, 130, 20), (int(cx), int(cy)), 9, width=1)
-            lbl = font_bold.render("S", True, (15, 23, 42))
-            surface.blit(lbl, lbl.get_rect(center=(cx, cy)))
+            # Vòng tròn (elip) trắng nằm phẳng trên mặt ô isometric
+            rect = pygame.Rect(int(cx - 7), int(cy - 4), 14, 9)
+            pygame.draw.ellipse(surface, (255, 255, 255), rect, width=2)
         elif sw.switch_type == SwitchType.HEAVY:
-            # Huy hiệu H hình thoi đỏ
-            h_pts = [(cx, cy - 8), (cx + 10, cy), (cx, cy + 8), (cx - 10, cy)]
-            pygame.draw.polygon(surface, (239, 68, 68), h_pts)
-            pygame.draw.polygon(surface, (185, 28, 28), h_pts, width=1)
-            lbl = font_bold.render("H", True, (255, 255, 255))
-            surface.blit(lbl, lbl.get_rect(center=(cx, cy)))
+            # Chữ X màu trắng theo hai trục nghiêng isometric
+            pygame.draw.line(surface, (255, 255, 255), (cx - 8, cy - 5), (cx + 8, cy + 5), 3)
+            pygame.draw.line(surface, (255, 255, 255), (cx - 8, cy + 5), (cx + 8, cy - 5), 3)
         elif sw.switch_type == SwitchType.SPLIT:
-            # Huy hiệu P tròn tím
-            pygame.draw.circle(surface, (168, 85, 247), (int(cx), int(cy)), 9)
-            pygame.draw.circle(surface, (126, 34, 206), (int(cx), int(cy)), 9, width=1)
-            lbl = font_bold.render("P", True, (255, 255, 255))
+            # Ký hiệu ( ) phân tách hai khối
+            lbl = font_bold.render("( )", True, (255, 255, 255))
             surface.blit(lbl, lbl.get_rect(center=(cx, cy)))
 
 

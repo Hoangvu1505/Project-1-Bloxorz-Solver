@@ -800,12 +800,6 @@ class BloxorzGUI:
         pygame.draw.polygon(self.screen, COLOR_FLOOR_BORDER, top, width=2)
 
         if page == 1:
-            pygame.draw.polygon(
-                self.screen,
-                COLOR_GOAL_DIAMOND,
-                [(center_x, center_y - 18), (center_x + 26, center_y),
-                 (center_x, center_y + 18), (center_x - 26, center_y)],
-            )
             label = "GOAL"
         elif page == 2:
             pygame.draw.line(self.screen, COLOR_FRAGILE_MARK,
@@ -818,19 +812,24 @@ class BloxorzGUI:
         elif page == 3:
             label = "BRIDGE"
         else:
-            for offset, text, color in [
-                (-42, "S", (251, 191, 36)),
-                (0, "H", (239, 68, 68)),
-                (42, "P", (168, 85, 247)),
+            for offset, color, sw_kind in [
+                (-42, (237, 134, 19), "soft"),
+                (0, (222, 48, 56), "heavy"),
+                (42, (190, 63, 240), "split"),
             ]:
-                pygame.draw.circle(
-                    self.screen, color,
-                    (center_x + offset, center_y), 15,
-                )
-                glyph = self.font_bold.render(text, True, COLOR_TEXT_WHITE)
-                self.screen.blit(glyph, glyph.get_rect(
-                    center=(center_x + offset, center_y)
-                ))
+                pt_x = center_x + offset
+                pt_y = center_y
+                pygame.draw.circle(self.screen, color, (pt_x, pt_y), 15)
+                pygame.draw.circle(self.screen, (255, 255, 255), (pt_x, pt_y), 15, width=1)
+                if sw_kind == "soft":
+                    rect = pygame.Rect(pt_x - 6, pt_y - 4, 12, 8)
+                    pygame.draw.ellipse(self.screen, (255, 255, 255), rect, width=2)
+                elif sw_kind == "heavy":
+                    pygame.draw.line(self.screen, (255, 255, 255), (pt_x - 5, pt_y - 5), (pt_x + 5, pt_y + 5), 2)
+                    pygame.draw.line(self.screen, (255, 255, 255), (pt_x - 5, pt_y + 5), (pt_x + 5, pt_y - 5), 2)
+                elif sw_kind == "split":
+                    glyph = self.font_bold.render("( )", True, COLOR_TEXT_WHITE)
+                    self.screen.blit(glyph, glyph.get_rect(center=(pt_x, pt_y)))
             label = "SWITCHES"
         label_surface = self.font_menu_subtitle.render(label, True, COLOR_TEXT_WHITE)
         self.screen.blit(
