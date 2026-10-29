@@ -1,5 +1,5 @@
 """
-Giao diện người dùng đồ hoạ Pygame cho Bloxorz Solver.
+Pygame graphical user interface for the Bloxorz Solver.
 """
 
 import os
@@ -58,7 +58,7 @@ COLOR_GOLD = (245, 158, 11)
 
 
 class CardButton:
-    """Nút bấm dạng Card có hiệu ứng hover/active."""
+    """Card button with hover and active states."""
     def __init__(self, rect, text, icon=""):
         self.rect = pygame.Rect(rect)
         self.text = text
@@ -97,7 +97,7 @@ class CardButton:
 
 
 class ActionButton:
-    """Nút bấm hành động bo góc."""
+    """Rounded action button."""
     def __init__(self, rect, text, bg_color=(28, 40, 65), hover_color=(38, 56, 92), text_color=(255, 255, 255), border_color=(51, 65, 85)):
         self.rect = pygame.Rect(rect)
         self.text = text
@@ -124,7 +124,7 @@ class ActionButton:
 
 
 class BloxorzGUI:
-    """Điều khiển giao diện chính của ứng dụng Bloxorz."""
+    """Main Bloxorz application controller."""
     def __init__(self):
         pygame.init()
         pygame.font.init()
@@ -154,17 +154,17 @@ class BloxorzGUI:
         self.guide_screen = False
         self.guide_page = 0
         self.guide_page_count = 5
-        self.game_modes = ["KIỂM TRA THUẬT TOÁN", "NGƯỜI CHƠI"]
+        self.game_modes = ["ALGORITHM TEST", "PLAYER"]
         self.game_mode_index = 0
 
-        # Nút bấm trên Pop-up Thắng / Thua
+        # Victory and game-over popup buttons
         self.btn_popup_restart = ActionButton(
-            (0, 0, 160, 40), "Thử lại ngay (R)",
+            (0, 0, 160, 40), "Retry (R)",
             bg_color=(69, 10, 10), hover_color=(127, 29, 29),
             text_color=(254, 202, 202), border_color=(239, 68, 68)
         )
         self.btn_popup_next = ActionButton(
-            (0, 0, 160, 40), "Màn tiếp theo (N)",
+            (0, 0, 160, 40), "Next level (N)",
             bg_color=(20, 83, 45), hover_color=(22, 101, 52),
             text_color=(220, 252, 231), border_color=(74, 222, 128)
         )
@@ -220,7 +220,7 @@ class BloxorzGUI:
 
     @staticmethod
     def _find_level_files(base_dir: str, folder_name: str = "levels") -> list[str]:
-        """Tìm toàn bộ level và sắp xếp theo số màn trong tên file."""
+        """Find all levels and sort them by the number in their filename."""
         pattern = os.path.join(base_dir, folder_name, "*", "stage_*.json")
         files = glob.glob(pattern)
 
@@ -279,7 +279,7 @@ class BloxorzGUI:
         half_w = (panel_w - 10) // 2
         self.btn_step_prev = ActionButton(
             (p_x, y, half_w, 30),
-            "<< Bước trước",
+            "<< Previous step",
             bg_color=(28, 40, 65),
             hover_color=(38, 56, 92),
             text_color=(255, 255, 255),
@@ -287,7 +287,7 @@ class BloxorzGUI:
         )
         self.btn_step_next = ActionButton(
             (p_x + half_w + 10, y, half_w, 30),
-            "Bước sau >>",
+            "Next step >>",
             bg_color=(28, 40, 65),
             hover_color=(38, 56, 92),
             text_color=(255, 255, 255),
@@ -297,13 +297,13 @@ class BloxorzGUI:
         y += 36
         self.btn_speed = ActionButton(
             (p_x, y, half_w, 30),
-            f"Tốc độ: {self.animator.speed}x",
+            f"Speed: {self.animator.speed}x",
             bg_color=(28, 40, 65),
             hover_color=(38, 56, 92),
             text_color=(255, 255, 255),
             border_color=(51, 65, 85),
         )
-        fs_lbl = "Thu nhỏ (F11)" if self.is_fullscreen else "Toàn màn (F11)"
+        fs_lbl = "Windowed (F11)" if self.is_fullscreen else "Fullscreen (F11)"
         self.btn_fs = ActionButton(
             (p_x + half_w + 10, y, half_w, 30),
             fs_lbl,
@@ -316,7 +316,7 @@ class BloxorzGUI:
         y += 36
         self.btn_restart = ActionButton(
             (p_x, y, panel_w, 30),
-            "Chơi lại màn này (R)",
+            "Restart level (R)",
             bg_color=(55, 25, 35),
             hover_color=(80, 35, 50),
             text_color=(254, 226, 226),
@@ -326,7 +326,7 @@ class BloxorzGUI:
         y += 36
         self.btn_main_menu = ActionButton(
             (p_x, y, half_w, 30),
-            "MENU CHÍNH",
+            "MAIN MENU",
             bg_color=(28, 40, 65),
             hover_color=(38, 56, 92),
             text_color=(255, 255, 255),
@@ -334,7 +334,7 @@ class BloxorzGUI:
         )
         self.btn_exit_game = ActionButton(
             (p_x + half_w + 10, y, half_w, 30),
-            "THOÁT",
+            "EXIT",
             bg_color=(55, 25, 35),
             hover_color=(80, 35, 50),
             text_color=(254, 226, 226),
@@ -342,7 +342,7 @@ class BloxorzGUI:
         )
 
     def _init_start_screen(self):
-        """Khởi tạo các nút khung cho màn hình bắt đầu."""
+        """Initialize the start-screen buttons."""
         screen_w, screen_h = self.screen.get_size()
         button_w, button_h = 300, 48
         button_x = screen_w // 2 - button_w // 2
@@ -352,7 +352,7 @@ class BloxorzGUI:
         self.menu_buttons = [
             ActionButton(
                 (button_x, button_y, button_w, button_h),
-                "CHƠI NGAY",
+                "PLAY NOW",
                 bg_color=(14, 74, 110),
                 hover_color=(18, 105, 150),
                 text_color=(224, 242, 254),
@@ -360,7 +360,7 @@ class BloxorzGUI:
             ),
             ActionButton(
                 (button_x, button_y + (button_h + button_gap), button_w, button_h),
-                "CHỌN LEVEL",
+                "SELECT LEVEL",
                 bg_color=COLOR_CARD_BG,
                 hover_color=COLOR_CARD_HOVER,
                 text_color=COLOR_TEXT_WHITE,
@@ -368,7 +368,7 @@ class BloxorzGUI:
             ),
             ActionButton(
                 (button_x, button_y + 2 * (button_h + button_gap), button_w, button_h),
-                "HƯỚNG DẪN",
+                "GUIDE",
                 bg_color=COLOR_CARD_BG,
                 hover_color=COLOR_CARD_HOVER,
                 text_color=COLOR_TEXT_WHITE,
@@ -376,7 +376,7 @@ class BloxorzGUI:
             ),
             ActionButton(
                 (button_x, button_y + 3 * (button_h + button_gap), button_w, button_h),
-                "CÀI ĐẶT",
+                "SETTINGS",
                 bg_color=COLOR_CARD_BG,
                 hover_color=COLOR_CARD_HOVER,
                 text_color=COLOR_TEXT_WHITE,
@@ -384,7 +384,7 @@ class BloxorzGUI:
             ),
             ActionButton(
                 (button_x, button_y + 4 * (button_h + button_gap), button_w, button_h),
-                "THOÁT",
+                "EXIT",
                 bg_color=(35, 25, 30),
                 hover_color=(69, 35, 45),
                 text_color=(252, 165, 165),
@@ -393,7 +393,7 @@ class BloxorzGUI:
         ]
 
     def _init_level_select_screen(self):
-        """Khởi tạo 6 nút level theo bố cục 3 cột x 2 hàng."""
+        """Initialize six level buttons in a three-column, two-row layout."""
         screen_w, screen_h = self.screen.get_size()
         gap_x, gap_y = 18, 18
         start_y = 158
@@ -454,7 +454,7 @@ class BloxorzGUI:
         nav_y = start_y + row_count * button_h + (row_count - 1) * gap_y + 20
         self.btn_level_prev = ActionButton(
             (start_x, nav_y, 120, 38),
-            "< TRƯỚC",
+            "< PREVIOUS",
             bg_color=COLOR_CARD_BG,
             hover_color=COLOR_CARD_HOVER,
             text_color=COLOR_TEXT_WHITE,
@@ -462,7 +462,7 @@ class BloxorzGUI:
         )
         self.btn_level_next = ActionButton(
             (start_x + total_w - 120, nav_y, 120, 38),
-            "SAU >",
+            "NEXT >",
             bg_color=COLOR_CARD_BG,
             hover_color=COLOR_CARD_HOVER,
             text_color=COLOR_TEXT_WHITE,
@@ -470,7 +470,7 @@ class BloxorzGUI:
         )
         self.btn_level_back = ActionButton(
             (screen_w // 2 - 120, nav_y + 54, 240, 42),
-            "QUAY LẠI",
+            "BACK",
             bg_color=COLOR_CARD_BG,
             hover_color=COLOR_CARD_HOVER,
             text_color=COLOR_TEXT_WHITE,
@@ -480,7 +480,7 @@ class BloxorzGUI:
 
     @staticmethod
     def _wrap_level_name(name: str, font, max_width: int) -> str:
-        """Chia tên level thành tối đa các dòng vừa trong ô vuông."""
+        """Wrap a level name into at most three lines for its square card."""
         words = name.split()
         lines = []
         current = ""
@@ -496,16 +496,16 @@ class BloxorzGUI:
         return "\n".join(lines[:3])
 
     def _init_settings_screen(self):
-        """Khởi tạo các nút trong màn hình cài đặt."""
+        """Initialize the settings buttons."""
         screen_w, screen_h = self.screen.get_size()
         button_w, button_h = 360, 52
         button_x = screen_w // 2 - button_w // 2
         button_y = screen_h // 2 - 56
 
         fullscreen_text = (
-            "THU NHỎ CỬA SỔ"
+            "WINDOWED"
             if self.is_fullscreen
-            else "PHÓNG TOÀN MÀN HÌNH"
+            else "FULLSCREEN"
         )
         self.btn_settings_fullscreen = ActionButton(
             (button_x, button_y, button_w, button_h),
@@ -517,7 +517,7 @@ class BloxorzGUI:
         )
         self.btn_settings_mode = ActionButton(
             (button_x, button_y + button_h + 16, button_w, button_h),
-            f"CHẾ ĐỘ: {self.game_modes[self.game_mode_index]}",
+            f"MODE: {self.game_modes[self.game_mode_index]}",
             bg_color=COLOR_CARD_BG,
             hover_color=COLOR_CARD_HOVER,
             text_color=COLOR_TEXT_WHITE,
@@ -525,7 +525,7 @@ class BloxorzGUI:
         )
         self.btn_settings_back = ActionButton(
             (button_x, button_y + 2 * (button_h + 16), button_w, button_h),
-            "QUAY LẠI MENU CHÍNH",
+            "BACK TO MAIN MENU",
             bg_color=COLOR_CARD_BG,
             hover_color=COLOR_CARD_HOVER,
             text_color=COLOR_TEXT_WHITE,
@@ -533,11 +533,11 @@ class BloxorzGUI:
         )
 
     def _init_guide_screen(self):
-        """Khởi tạo các nút điều hướng cho phần hướng dẫn."""
+        """Initialize guide navigation buttons."""
         screen_w, screen_h = self.screen.get_size()
         self.btn_guide_back = ActionButton(
             (screen_w // 2 - 120, screen_h - 58, 240, 42),
-            "QUAY LẠI MENU CHÍNH",
+            "BACK TO MAIN MENU",
             bg_color=COLOR_CARD_BG,
             hover_color=COLOR_CARD_HOVER,
             text_color=COLOR_TEXT_WHITE,
@@ -545,7 +545,7 @@ class BloxorzGUI:
         )
         self.btn_guide_prev = ActionButton(
             (40, screen_h - 58, 120, 42),
-            "< TRƯỚC",
+            "< PREVIOUS",
             bg_color=COLOR_CARD_BG,
             hover_color=COLOR_CARD_HOVER,
             text_color=COLOR_TEXT_WHITE,
@@ -553,7 +553,7 @@ class BloxorzGUI:
         )
         self.btn_guide_next = ActionButton(
             (screen_w - 160, screen_h - 58, 120, 42),
-            "SAU >",
+            "NEXT >",
             bg_color=COLOR_CARD_BG,
             hover_color=COLOR_CARD_HOVER,
             text_color=COLOR_TEXT_WHITE,
@@ -561,7 +561,7 @@ class BloxorzGUI:
         )
 
     def draw_start_screen(self):
-        """Vẽ màn hình khởi đầu; các nút hiện chỉ là khung giao diện."""
+        """Draw the start screen."""
         screen_w, screen_h = self.screen.get_size()
         center_x = screen_w // 2
 
@@ -569,7 +569,7 @@ class BloxorzGUI:
         overlay.fill((8, 13, 25, 125))
         self.screen.blit(overlay, (0, 0))
 
-        # Họa tiết hình học gợi liên tưởng đến bàn cờ và khối Bloxorz.
+        # Geometric pattern inspired by the board and Bloxorz block.
         grid_color = (20, 46, 70)
         for offset in range(-screen_h, screen_w, 64):
             pygame.draw.line(
@@ -613,15 +613,15 @@ class BloxorzGUI:
         self.screen.blit(hint, hint.get_rect(center=(center_x, screen_h - 32)))
 
     def draw_level_select_screen(self):
-        """Vẽ giao diện chọn level."""
+        """Draw the level-selection screen."""
         screen_w, screen_h = self.screen.get_size()
         center_x = screen_w // 2
 
-        title = self.font_menu_title.render("CHỌN LEVEL", True, COLOR_CYAN_GLOW)
+        title = self.font_menu_title.render("SELECT LEVEL", True, COLOR_CYAN_GLOW)
         self.screen.blit(title, title.get_rect(center=(center_x, 82)))
 
         subtitle = self.font_menu_subtitle.render(
-            f"Chọn một màn chơi để bắt đầu  |  Trang {self.level_page + 1}/{self.level_page_count}",
+            f"Choose a level to begin  |  Page {self.level_page + 1}/{self.level_page_count}",
             True,
             COLOR_TEXT_DIM,
         )
@@ -629,12 +629,14 @@ class BloxorzGUI:
 
         for button in self.level_buttons:
             self._draw_multiline_button(button, self.level_button_font)
-        self.btn_level_prev.draw(self.screen, self.font_menu_button)
-        self.btn_level_next.draw(self.screen, self.font_menu_button)
+        if self.level_page > 0:
+            self.btn_level_prev.draw(self.screen, self.font_menu_button)
+        if self.level_page < self.level_page_count - 1:
+            self.btn_level_next.draw(self.screen, self.font_menu_button)
         self.btn_level_back.draw(self.screen, self.font_menu_button)
 
     def _draw_multiline_button(self, button: ActionButton, font) -> None:
-        """Vẽ nút có tên level nhiều dòng ở chính giữa ô."""
+        """Draw a button with a centered multiline level name."""
         col = button.hover_color if button.is_hovered else button.bg_color
         pygame.draw.rect(self.screen, col, button.rect, border_radius=8)
         pygame.draw.rect(
@@ -655,15 +657,15 @@ class BloxorzGUI:
             self.screen.blit(text_surface, text_rect)
 
     def draw_settings_screen(self):
-        """Vẽ màn hình cài đặt."""
+        """Draw the settings screen."""
         screen_w = self.screen.get_width()
         center_x = screen_w // 2
 
-        title = self.font_menu_title.render("CÀI ĐẶT", True, COLOR_CYAN_GLOW)
+        title = self.font_menu_title.render("SETTINGS", True, COLOR_CYAN_GLOW)
         self.screen.blit(title, title.get_rect(center=(center_x, 180)))
 
         subtitle = self.font_menu_subtitle.render(
-            "Tùy chỉnh hiển thị và chế độ chơi", True, COLOR_TEXT_DIM
+            "Customize display and game mode", True, COLOR_TEXT_DIM
         )
         self.screen.blit(subtitle, subtitle.get_rect(center=(center_x, 225)))
 
@@ -672,15 +674,15 @@ class BloxorzGUI:
         self.btn_settings_back.draw(self.screen, self.font_menu_button)
 
     def draw_guide_screen(self):
-        """Vẽ hướng dẫn nhiều trang kèm minh họa trực quan."""
+        """Draw the multi-page guide with visual illustrations."""
         screen_w, screen_h = self.screen.get_size()
         center_x = screen_w // 2
 
-        title = self.font_menu_title.render("HƯỚNG DẪN", True, COLOR_CYAN_GLOW)
+        title = self.font_menu_title.render("GUIDE", True, COLOR_CYAN_GLOW)
         self.screen.blit(title, title.get_rect(center=(center_x, 68)))
 
         subtitle = self.font_menu_subtitle.render(
-            f"Trang {self.guide_page + 1}/{self.guide_page_count}",
+            f"Page {self.guide_page + 1}/{self.guide_page_count}",
             True,
             COLOR_TEXT_DIM,
         )
@@ -688,41 +690,41 @@ class BloxorzGUI:
 
         pages = [
             (
-                "LUẬT CHƠI VÀ CÁCH ĐIỀU KHIỂN",
+                "RULES AND CONTROLS",
                 [
-                    ("MỤC TIÊU", "Đưa khối vào ô đích khi khối đứng thẳng hoàn toàn."),
-                    ("DI CHUYỂN", "Dùng W A S D hoặc các phím mũi tên để lăn khối."),
-                    ("TƯ THẾ", "Khối có thể đứng thẳng, nằm ngang hoặc nằm dọc."),
-                    ("LUẬT", "Nếu khối rơi khỏi nền hoặc đứng sai ô, bạn sẽ thua và phải chơi lại."),
+                    ("GOAL", "Move the block onto the goal while standing upright."),
+                    ("MOVEMENT", "Use W A S D or the arrow keys to roll the block."),
+                    ("ORIENTATION", "The block can stand upright or lie horizontally or vertically."),
+                    ("RULE", "If the block falls off the platform or onto an invalid tile, you lose."),
                 ],
             ),
             (
-                "Ô ĐÍCH",
+                "GOAL TILE",
                 [
-                    ("CHỨC NĂNG", "Ô vàng đánh dấu vị trí cần đưa khối đến."),
-                    ("CƠ CHẾ", "Khối phải đứng thẳng và phủ đúng ô đích để thắng."),
+                    ("FUNCTION", "The yellow tile marks the destination for the block."),
+                    ("MECHANIC", "The block must stand upright and cover the goal to win."),
                 ],
             ),
             (
-                "Ô CAM DỄ VỠ",
+                "FRAGILE TILE",
                 [
-                    ("CHỨC NĂNG", "Ô cam là nền yếu và có thể bị phá vỡ."),
-                    ("CƠ CHẾ", "Không được để khối đứng thẳng trên ô cam; hãy lăn qua bằng mặt dài."),
+                    ("FUNCTION", "The orange tile is weak and can break."),
+                    ("MECHANIC", "Do not stand upright on it; roll across it using the block's long side."),
                 ],
             ),
             (
-                "CẦU",
+                "BRIDGE",
                 [
-                    ("CHỨC NĂNG", "Cầu là các ô xanh nối đường đi hoặc mở rộng nền."),
-                    ("CƠ CHẾ", "Cầu đóng tạo thành khoảng trống; công tắc liên kết sẽ mở hoặc đóng cầu."),
+                    ("FUNCTION", "Bridges are blue tiles that connect paths or extend the platform."),
+                    ("MECHANIC", "A closed bridge creates a gap; linked switches open or close it."),
                 ],
             ),
             (
-                "CÔNG TẮC",
+                "SWITCHES",
                 [
-                    ("MỀM / S", "Kích hoạt khi khối nằm trên công tắc, thường dùng để bật hoặc tắt cầu."),
-                    ("NẶNG / H", "Chỉ kích hoạt khi khối đứng thẳng trên công tắc."),
-                    ("TÁCH / P", "Tách khối thành hai lập phương; nhấn Space để đổi lập phương điều khiển."),
+                    ("SOFT / S", "Activates when the block lies on the switch, usually toggling a bridge."),
+                    ("HEAVY / H", "Activates only when the block stands upright on the switch."),
+                    ("SPLIT / P", "Splits the block into two cubes; press Space to switch the active cube."),
                 ],
             ),
         ]
@@ -765,12 +767,14 @@ class BloxorzGUI:
             )
             y += card_h + 8
 
-        self.btn_guide_prev.draw(self.screen, self.font_menu_button)
-        self.btn_guide_next.draw(self.screen, self.font_menu_button)
+        if self.guide_page > 0:
+            self.btn_guide_prev.draw(self.screen, self.font_menu_button)
+        if self.guide_page < self.guide_page_count - 1:
+            self.btn_guide_next.draw(self.screen, self.font_menu_button)
         self.btn_guide_back.draw(self.screen, self.font_menu_button)
 
     def _draw_guide_image(self, target_rect: pygame.Rect) -> None:
-        """Vẽ ảnh minh họa màn chơi và khối Bloxorz ở trang đầu."""
+        """Draw the board and Bloxorz block illustration on the first page."""
         image = pygame.transform.smoothscale(self.guide_image, target_rect.size)
         self.screen.blit(image, target_rect)
 
@@ -780,7 +784,7 @@ class BloxorzGUI:
         center_x: int,
         center_y: int,
     ) -> None:
-        """Vẽ hình minh họa cho đúng loại ô của trang hiện tại."""
+        """Draw the special-tile illustration for the current page."""
         tile_w, tile_h = 88, 44
         top = [(center_x, center_y - tile_h), (center_x + tile_w, center_y),
                (center_x, center_y + tile_h), (center_x - tile_w, center_y)]
@@ -802,7 +806,7 @@ class BloxorzGUI:
                 [(center_x, center_y - 18), (center_x + 26, center_y),
                  (center_x, center_y + 18), (center_x - 26, center_y)],
             )
-            label = "ĐÍCH"
+            label = "GOAL"
         elif page == 2:
             pygame.draw.line(self.screen, COLOR_FRAGILE_MARK,
                              (center_x - 32, center_y - 15),
@@ -810,9 +814,9 @@ class BloxorzGUI:
             pygame.draw.line(self.screen, COLOR_FRAGILE_MARK,
                              (center_x + 20, center_y - 25),
                              (center_x - 22, center_y + 24), 5)
-            label = "DỄ VỠ"
+            label = "FRAGILE"
         elif page == 3:
-            label = "CẦU"
+            label = "BRIDGE"
         else:
             for offset, text, color in [
                 (-42, "S", (251, 191, 36)),
@@ -827,16 +831,15 @@ class BloxorzGUI:
                 self.screen.blit(glyph, glyph.get_rect(
                     center=(center_x + offset, center_y)
                 ))
-            label = "CÔNG TẮC"
+            label = "SWITCHES"
         label_surface = self.font_menu_subtitle.render(label, True, COLOR_TEXT_WHITE)
         self.screen.blit(
             label_surface,
             label_surface.get_rect(center=(center_x, center_y + 90)),
         )
 
-    #hàm cần code lại
     def load_stage(self, idx: int):
-        """Nạp màn chơi theo chỉ mục."""
+        """Load a level by index."""
         if not self.level_files:
             return
         self.current_stage_idx = idx % len(self.level_files)
@@ -855,7 +858,7 @@ class BloxorzGUI:
         self.goal_reveal_started_at = time.time()
 
     def restart_stage(self):
-        """Khởi động lại màn chơi hiện tại."""
+        """Restart the current level."""
         self.state = self.board.get_initial_state()
         self.game_over = False
         self.is_won = False
@@ -867,16 +870,15 @@ class BloxorzGUI:
         self.goal_reveal_started_at = time.time()
 
     def return_to_main_menu(self):
-        """Trở về màn hình menu chính từ một màn chơi."""
+        """Return to the main menu from a level."""
         self.start_screen = True
         self.level_select_screen = False
         self.animator.reset()
         self.manual_anim = None
         self.falling_anim = None
 
-    #hàm cần code lại
     def handle_manual_move(self, move_dir: Direction):
-        """Xử lý di chuyển thủ công từ phím bấm với animation lăn."""
+        """Handle a keyboard move with rolling animation."""
         if self.game_over or self.is_won or self.falling_anim is not None:
             return
         self.animator.is_playing = False
@@ -915,7 +917,7 @@ class BloxorzGUI:
             )
 
     def _get_failed_move_state(self, move_dir: Direction) -> GameState:
-        """Tạo trạng thái hình ảnh sau bước lăn ra ngoài bàn cờ."""
+        """Create the visual state after rolling off the board."""
         if not self.state.is_split:
             orientation, pos = roll_solid_block(
                 self.state.orientation,
@@ -945,10 +947,10 @@ class BloxorzGUI:
 
 
     def run_solver(self, algo_name: str):
-        """Chạy thuật toán tìm kiếm và chuẩn bị lời giải."""
+        """Run a search algorithm and prepare its solution."""
         self.restart_stage()
         self.active_algo = algo_name
-        print(f"\n[SOLVER] Đang thực thi: {algo_name}...")
+        print(f"\n[SOLVER] Running: {algo_name}...")
 
         if algo_name == "BFS":
             res = solve_bfs(self.board)
@@ -969,17 +971,17 @@ class BloxorzGUI:
             self.animator.current_step = 0
 
     def draw_header(self):
-        """Vẽ thanh Header trên cùng: Capsule [ < LEVEL X / 10 > ], Tên màn, Pill Badge tư thế."""
+        """Draw the top header with level navigation and level name."""
         screen_w, screen_h = self.screen.get_size()
 
-        # 1. Hộp capsule điều hướng Level
+        # 1. Level navigation capsule
         pygame.draw.rect(self.screen, COLOR_HEADER_BG, self.rect_capsule, border_radius=18)
         pygame.draw.rect(self.screen, (30, 41, 59), self.rect_capsule, width=1, border_radius=18)
 
         self.btn_prev.draw(self.screen, self.font_bold)
         self.btn_next.draw(self.screen, self.font_bold)
 
-        # Chữ LEVEL X / 10 ở giữa capsule
+        # LEVEL X / total in the center of the capsule
         txt_lvl = self.font_small.render("LEVEL ", True, (160, 185, 215))
         cur_num = f"{self.current_stage_idx + 1:02d}" if (self.current_stage_idx + 1) >= 10 else f"{self.current_stage_idx + 1}"
         txt_num = self.font_bold.render(cur_num, True, COLOR_CYAN_GLOW)
@@ -995,21 +997,20 @@ class BloxorzGUI:
         cur_x += txt_num.get_width()
         self.screen.blit(txt_total, (cur_x, cy))
 
-        # 2. Tên màn chơi cạnh capsule
+        # 2. Level name beside the capsule
         lvl_name_text = f"Level {self.current_stage_idx + 1} — {self.board.name}"
         lbl_name = self.font_normal.render(lvl_name_text, True, COLOR_TEXT_MUTED)
         self.screen.blit(lbl_name, (self.rect_capsule.right + 20, self.rect_capsule.centery - lbl_name.get_height() // 2))
 
-    #hàm cần code lại
     def draw_board(self):
-        """Vẽ toàn bộ bàn cờ tự động căn giữa ở phần còn lại của màn hình."""
+        """Draw the board centered in the available game area."""
         screen_w, screen_h = self.screen.get_size()
         center_x = (screen_w - 360) / 2.0+30
         center_y = screen_h / 2.0 + 35
         reveal_elapsed = time.time() - self.goal_reveal_started_at
         show_goal = (
-            reveal_elapsed < self.goal_reveal_duration
-            and int(reveal_elapsed / 0.18) % 2 == 0
+            reveal_elapsed >= self.goal_reveal_duration
+            or int(reveal_elapsed / 0.18) % 2 == 0
         )
 
         for r in range(self.board.rows):
@@ -1025,7 +1026,7 @@ class BloxorzGUI:
                     show_goal,
                 )
 
-        # Vẽ khối: ưu tiên diễn hoạt lăn 3D nếu đang có animation
+        # Draw the block, prioritizing the 3D rolling animation when active.
         curr_anim = self.manual_anim or self.animator.active_animation
         if self.falling_anim is not None and not self.falling_anim.is_finished:
             draw_falling_block(
@@ -1052,7 +1053,7 @@ class BloxorzGUI:
         else:
             draw_block(self.screen, self.state, self.board, center_x, center_y)
 
-        # Hiển thị HUD thông báo tinh chỉnh khối realtime
+        # Display real-time block-tuning messages.
         if self.hud_msg and time.time() < self.hud_msg_timer:
             msg_surf = self.font_bold.render(self.hud_msg, True, (56, 189, 248))
             pad_x, pad_y = 16, 8
@@ -1063,12 +1064,12 @@ class BloxorzGUI:
             self.screen.blit(msg_surf, msg_surf.get_rect(center=msg_rect.center))
 
     def draw_sidebar(self):
-        """Vẽ thanh Sidebar bên phải với Badge tư thế, Solver Cards, SEARCH METRICS và Animation controls."""
+        """Draw the sidebar with orientation, solver, metrics, and animation controls."""
         screen_w, screen_h = self.screen.get_size()
         panel_w = 340
         p_x = screen_w - panel_w - 20
 
-        # 1. Badge tư thế góc trên-phải (Pill badge)
+        # 1. Orientation badge in the upper-right corner
         if not self.state.is_split:
             ori = self.state.orientation
             if ori == Orientation.STANDING:
@@ -1094,7 +1095,7 @@ class BloxorzGUI:
         self.screen.blit(txt_badge, txt_badge.get_rect(center=badge_rect.center))
 
         if self.game_mode_index == 0:
-            # Cập nhật trạng thái active của các nút Solver
+            # Update solver button active states.
             self.btn_bfs.is_active = (self.active_algo == "BFS")
             self.btn_dfs.is_active = (self.active_algo == "DFS")
             self.btn_ucs.is_active = (self.active_algo == "UCS")
@@ -1105,13 +1106,13 @@ class BloxorzGUI:
             self.btn_ucs.draw(self.screen, self.font_card)
             self.btn_astar.draw(self.screen, self.font_card)
 
-            # Tiêu đề | SEARCH METRICS
+            # Title | SEARCH METRICS
             stat_y = 265
             pygame.draw.line(self.screen, (56, 189, 248), (p_x, stat_y + 2), (p_x, stat_y + 16), 3)
             lbl_metrics = self.font_bold.render("  SEARCH METRICS", True, (255, 255, 255))
             self.screen.blit(lbl_metrics, (p_x + 4, stat_y))
 
-            # Bảng số liệu chi tiết
+            # Detailed metrics
             stat_y += 30
             metrics = [
                 ("SEARCH TIME:", f"{self.search_result.search_time * 1000:.2f} ms" if self.search_result else "-- ms"),
@@ -1127,7 +1128,7 @@ class BloxorzGUI:
                 self.screen.blit(val_surf, (p_x + panel_w - val_surf.get_width(), stat_y))
                 stat_y += 24
 
-            # Cập nhật nút Show / Pause Animation
+            # Update the show/pause animation button.
             if self.animator.is_playing:
                 self.btn_show_anim.text = "PAUSE ANIMATION"
                 self.btn_show_anim.text_color = COLOR_GOLD
@@ -1146,27 +1147,27 @@ class BloxorzGUI:
         self.btn_main_menu.draw(self.screen, self.font_bold)
         self.btn_exit_game.draw(self.screen, self.font_bold)
 
-        # Hướng dẫn phím bấm
+        # Keyboard help
         guide_y = self.btn_exit_game.rect.bottom + 10
-        guide_txt = self.font_normal.render("Phím: WASD/Mũi tên | [ / ]: Chỉnh khối | F11: Toàn màn", True, (160, 185, 215))
+        guide_txt = self.font_normal.render("Keys: WASD/Arrows | [ / ]: Adjust block | F11: Fullscreen", True, (160, 185, 215))
         self.screen.blit(guide_txt, (p_x, guide_y))
 
-        # Banner trạng thái Thắng / Thua
+        # Victory / game-over status banner
         if self.is_won:
             b_rect = pygame.Rect(p_x, guide_y + 22, panel_w, 32)
             pygame.draw.rect(self.screen, (20, 83, 45), b_rect, border_radius=6)
             pygame.draw.rect(self.screen, (74, 222, 128), b_rect, width=1, border_radius=6)
-            txt = self.font_bold.render("CHIẾN THẮNG! KHỐI ĐÃ VÀO ĐÍCH!", True, (220, 252, 231))
+            txt = self.font_bold.render("VICTORY! BLOCK REACHED THE GOAL!", True, (220, 252, 231))
             self.screen.blit(txt, txt.get_rect(center=b_rect.center))
         elif self.game_over:
             b_rect = pygame.Rect(p_x, guide_y + 22, panel_w, 32)
             pygame.draw.rect(self.screen, (127, 29, 29), b_rect, border_radius=6)
             pygame.draw.rect(self.screen, (248, 113, 113), b_rect, width=1, border_radius=6)
-            txt = self.font_bold.render("THẤT BẠI! KHỐI RƠI HOẶC VỠ SÀN!", True, (254, 226, 226))
+            txt = self.font_bold.render("GAME OVER! THE BLOCK FELL OR BROKE THE FLOOR!", True, (254, 226, 226))
             self.screen.blit(txt, txt.get_rect(center=b_rect.center))
 
     def draw_popup_result(self):
-        """Vẽ pop-up thông báo Thắng / Thua nổi bật ở giữa màn hình game."""
+        """Draw a prominent victory or game-over popup."""
         if not (self.is_won or self.game_over):
             return
 
@@ -1174,68 +1175,68 @@ class BloxorzGUI:
         center_x = (screen_w - 360) // 2
         center_y = screen_h // 2
 
-        # 1. Lớp phủ mờ (dim backdrop) làm nổi bật pop-up (chỉ phủ khu vực bàn cờ bên trái, không phủ thanh điều khiển bên phải)
+        # 1. Dim the board area without covering the sidebar.
         board_area_w = max(0, screen_w - 360)
         overlay = pygame.Surface((board_area_w, screen_h), pygame.SRCALPHA)
         overlay.fill((5, 10, 22, 160))
         self.screen.blit(overlay, (0, 0))
 
-        # 2. Khung hộp thoại Pop-up
+        # 2. Popup frame
         popup_w = 440
         popup_h = 230
         popup_rect = pygame.Rect(center_x - popup_w // 2, center_y - popup_h // 2, popup_w, popup_h)
 
         if self.is_won:
             bg_color = (15, 23, 42)
-            border_color = (34, 197, 94)      # Xanh lục Neon
-            title_text = "CHIẾN THẮNG!"
+            border_color = (34, 197, 94)
+            title_text = "VICTORY!"
             title_color = (74, 222, 128)
-            desc_text = "Khối đã đứng thẳng vào ô đích an toàn!"
-            info_text = f"Số bước di chuyển: {self.move_count} bước"
+            desc_text = "The block is upright on the goal!"
+            info_text = f"Moves: {self.move_count}"
         else:
             bg_color = (24, 15, 22)
-            border_color = (239, 68, 68)     # Đỏ Neon
-            title_text = "THẤT BẠI!"
+            border_color = (239, 68, 68)
+            title_text = "GAME OVER!"
             title_color = (248, 113, 113)
-            desc_text = "Khối đã rơi ra ngoài hoặc làm vỡ ô cam!"
-            info_text = f"Đã thực hiện: {self.move_count} bước trước khi rơi"
+            desc_text = "The block fell off the platform or broke a fragile tile!"
+            info_text = f"Moves before falling: {self.move_count}"
 
-        # Đổ bóng
+        # Shadow
         shadow_rect = popup_rect.copy()
         shadow_rect.y += 6
         pygame.draw.rect(self.screen, (0, 0, 0, 180), shadow_rect, border_radius=16)
 
-        # Vẽ Card pop-up
+        # Popup card
         pygame.draw.rect(self.screen, bg_color, popup_rect, border_radius=16)
         pygame.draw.rect(self.screen, border_color, popup_rect, width=2, border_radius=16)
 
-        # Tiêu đề
+        # Title
         lbl_title = self.font_popup_title.render(title_text, True, title_color)
         self.screen.blit(lbl_title, lbl_title.get_rect(center=(popup_rect.centerx, popup_rect.y + 40)))
 
-        # Dòng miêu tả
+        # Description
         lbl_desc = self.font_popup_body.render(desc_text, True, COLOR_TEXT_WHITE)
         self.screen.blit(lbl_desc, lbl_desc.get_rect(center=(popup_rect.centerx, popup_rect.y + 82)))
 
-        # Thông tin bước đi
+        # Move information
         lbl_info = self.font_normal.render(info_text, True, COLOR_TEXT_MUTED)
         self.screen.blit(lbl_info, lbl_info.get_rect(center=(popup_rect.centerx, popup_rect.y + 112)))
 
-        # Nút bấm trong pop-up
+        # Popup buttons
         btn_y = popup_rect.y + 152
         btn_w = 160
         btn_h = 40
 
         if self.is_won:
             self.btn_popup_restart.rect = pygame.Rect(popup_rect.centerx - btn_w - 10, btn_y, btn_w, btn_h)
-            self.btn_popup_restart.text = "Chơi lại (R)"
+            self.btn_popup_restart.text = "Restart (R)"
             self.btn_popup_restart.bg_color = (23, 32, 51)
             self.btn_popup_restart.hover_color = (35, 48, 75)
             self.btn_popup_restart.text_color = COLOR_TEXT_WHITE
             self.btn_popup_restart.border_color = (71, 85, 105)
 
             self.btn_popup_next.rect = pygame.Rect(popup_rect.centerx + 10, btn_y, btn_w, btn_h)
-            self.btn_popup_next.text = "Màn tiếp theo (N)"
+            self.btn_popup_next.text = "Next level (N)"
             self.btn_popup_next.bg_color = (20, 83, 45)
             self.btn_popup_next.hover_color = (22, 101, 52)
             self.btn_popup_next.text_color = (220, 252, 231)
@@ -1245,7 +1246,7 @@ class BloxorzGUI:
             self.btn_popup_next.draw(self.screen, self.font_bold)
         else:
             self.btn_popup_restart.rect = pygame.Rect(popup_rect.centerx - btn_w // 2, btn_y, btn_w, btn_h)
-            self.btn_popup_restart.text = "Thử lại ngay (R)"
+            self.btn_popup_restart.text = "Retry (R)"
             self.btn_popup_restart.bg_color = (69, 10, 10)
             self.btn_popup_restart.hover_color = (127, 29, 29)
             self.btn_popup_restart.text_color = (254, 202, 202)
@@ -1253,9 +1254,8 @@ class BloxorzGUI:
 
             self.btn_popup_restart.draw(self.screen, self.font_bold)
 
-    #hàm cần code lại
     def run(self):
-        """Vòng lặp sự kiện chính của game."""
+        """Run the main game event loop."""
 
         running = True
         while running:
@@ -1291,11 +1291,11 @@ class BloxorzGUI:
                     if self.btn_level_back.handle_event(event):
                         self.level_select_screen = False
                         self.start_screen = True
-                    elif self.btn_level_prev.handle_event(event):
+                    elif self.level_page > 0 and self.btn_level_prev.handle_event(event):
                         if self.level_page > 0:
                             self.level_page -= 1
                             self._init_level_select_screen()
-                    elif self.btn_level_next.handle_event(event):
+                    elif self.level_page < self.level_page_count - 1 and self.btn_level_next.handle_event(event):
                         if self.level_page < self.level_page_count - 1:
                             self.level_page += 1
                             self._init_level_select_screen()
@@ -1310,9 +1310,9 @@ class BloxorzGUI:
                                 self.level_select_screen = False
                                 break
                 elif self.guide_screen:
-                    if self.btn_guide_prev.handle_event(event):
+                    if self.guide_page > 0 and self.btn_guide_prev.handle_event(event):
                         self.guide_page = max(0, self.guide_page - 1)
-                    elif self.btn_guide_next.handle_event(event):
+                    elif self.guide_page < self.guide_page_count - 1 and self.btn_guide_next.handle_event(event):
                         self.guide_page = min(
                             self.guide_page_count - 1,
                             self.guide_page + 1,
@@ -1329,7 +1329,7 @@ class BloxorzGUI:
                             % len(self.game_modes)
                         )
                         self.btn_settings_mode.text = (
-                            f"CHẾ ĐỘ: {self.game_modes[self.game_mode_index]}"
+                            f"MODE: {self.game_modes[self.game_mode_index]}"
                         )
                     elif self.btn_settings_back.handle_event(event):
                         self.settings_screen = False
@@ -1360,42 +1360,42 @@ class BloxorzGUI:
                     elif event.key == pygame.K_p:
                         self.load_stage(self.current_stage_idx - 1)
                     elif event.key in [pygame.K_LEFTBRACKET, pygame.K_MINUS]:
-                        # Giảm chiều cao khối nằm (-2px)
+                        # Decrease lying-block height (-2px).
                         import gui.renderer as r_mod
                         r_mod.BLOCK_H_LYING = max(20, r_mod.BLOCK_H_LYING - 2)
                         r_mod.BLOCK_H = r_mod.BLOCK_H_LYING
-                        self.show_hud_message(f"Chiều cao nằm: {r_mod.BLOCK_H_LYING}px | Đứng: {r_mod.BLOCK_H_STANDING}px")
-                        print(f"[Đồ họa] BLOCK_H_LYING = {r_mod.BLOCK_H_LYING}px, BLOCK_H_STANDING = {r_mod.BLOCK_H_STANDING}px")
+                        self.show_hud_message(f"Lying height: {r_mod.BLOCK_H_LYING}px | Standing: {r_mod.BLOCK_H_STANDING}px")
+                        print(f"[Graphics] BLOCK_H_LYING = {r_mod.BLOCK_H_LYING}px, BLOCK_H_STANDING = {r_mod.BLOCK_H_STANDING}px")
                     elif event.key in [pygame.K_RIGHTBRACKET, pygame.K_EQUALS, pygame.K_PLUS]:
-                        # Tăng chiều cao khối nằm (+2px)
+                        # Increase lying-block height (+2px).
                         import gui.renderer as r_mod
                         r_mod.BLOCK_H_LYING = min(80, r_mod.BLOCK_H_LYING + 2)
                         r_mod.BLOCK_H = r_mod.BLOCK_H_LYING
-                        self.show_hud_message(f"Chiều cao nằm: {r_mod.BLOCK_H_LYING}px | Đứng: {r_mod.BLOCK_H_STANDING}px")
-                        print(f"[Đồ họa] BLOCK_H_LYING = {r_mod.BLOCK_H_LYING}px, BLOCK_H_STANDING = {r_mod.BLOCK_H_STANDING}px")
+                        self.show_hud_message(f"Lying height: {r_mod.BLOCK_H_LYING}px | Standing: {r_mod.BLOCK_H_STANDING}px")
+                        print(f"[Graphics] BLOCK_H_LYING = {r_mod.BLOCK_H_LYING}px, BLOCK_H_STANDING = {r_mod.BLOCK_H_STANDING}px")
                     elif event.key == pygame.K_0:
-                        # Khôi phục mặc định 48px / 96px
+                        # Restore defaults: 48px / 96px.
                         import gui.renderer as r_mod
                         r_mod.BLOCK_H_LYING = 48
                         r_mod.BLOCK_H_STANDING = 96
                         r_mod.BLOCK_H = 48
-                        self.show_hud_message(f"Khôi phục mặc định: Nằm 48px | Đứng 96px")
-                        print(f"[Đồ họa] Khôi phục mặc định BLOCK_H_LYING = 48px, BLOCK_H_STANDING = 96px")
+                        self.show_hud_message("Defaults restored: Lying 48px | Standing 96px")
+                        print("[Graphics] Defaults restored: BLOCK_H_LYING = 48px, BLOCK_H_STANDING = 96px")
 
-                # Sự kiện nút trên Pop-up Thắng / Thua
+                # Victory and game-over popup button events
                 if self.is_won or self.game_over:
                     if self.btn_popup_restart.handle_event(event):
                         self.restart_stage()
                     elif self.is_won and self.btn_popup_next.handle_event(event):
                         self.load_stage(self.current_stage_idx + 1)
 
-                # Nút điều hướng màn chơi
+                # Level navigation buttons
                 if self.btn_prev.handle_event(event):
                     self.load_stage(self.current_stage_idx - 1)
                 elif self.btn_next.handle_event(event):
                     self.load_stage(self.current_stage_idx + 1)
 
-                # Các nút Solver chỉ khả dụng trong chế độ kiểm tra thuật toán.
+                # Solver buttons are available only in algorithm-test mode.
                 if self.game_mode_index == 0 and self.btn_bfs.handle_event(event):
                     self.run_solver("BFS")
                 elif self.game_mode_index == 0 and self.btn_dfs.handle_event(event):
@@ -1405,7 +1405,7 @@ class BloxorzGUI:
                 elif self.game_mode_index == 0 and self.btn_astar.handle_event(event):
                     self.run_solver("A*")
 
-                # Nút điều khiển Animation / Replay
+                # Animation and replay controls
                 elif self.game_mode_index == 0 and self.btn_show_anim.handle_event(event):
                     if self.search_result and self.search_result.solved:
                         self.animator.toggle_play()
@@ -1425,7 +1425,7 @@ class BloxorzGUI:
                         self.is_won = self.board.is_goal_state(self.state)
                 elif self.game_mode_index == 0 and self.btn_speed.handle_event(event):
                     spd = self.animator.cycle_speed()
-                    self.btn_speed.text = f"Tốc độ: {spd}x"
+                    self.btn_speed.text = f"Speed: {spd}x"
                 elif self.btn_fs.handle_event(event):
                     self.toggle_fullscreen()
                 elif self.btn_restart.handle_event(event):
@@ -1463,7 +1463,7 @@ class BloxorzGUI:
                 self.clock.tick(FPS)
                 continue
 
-            # Cập nhật hoạt ảnh di chuyển thủ công (nếu có)
+            # Update manual movement animation, if any.
             if self.manual_anim is not None:
                 self.manual_anim.update()
                 if self.manual_anim.is_finished:
@@ -1480,7 +1480,7 @@ class BloxorzGUI:
                     self.falling_anim = None
                     self.game_over = True
 
-            # Tự động phát lại lời giải (Replay)
+            # Automatically replay the solution.
             if self.game_mode_index == 0 and self.search_result and self.search_result.solved:
                 actions_list = getattr(self.search_result, "actions", None) or getattr(self.search_result, "actions_path", None)
                 next_st, anim = self.animator.update(self.search_result.states_path, actions_list)
@@ -1490,7 +1490,7 @@ class BloxorzGUI:
                     if self.board.is_goal_state(self.state):
                         self.is_won = True
 
-            # Dựng hình
+            # Render the current frame.
             self.screen.fill(COLOR_BG)
             self.draw_header()
             self.draw_board()
