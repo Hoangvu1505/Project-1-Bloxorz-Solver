@@ -7,6 +7,7 @@ from typing import Tuple, List, Optional
 import pygame
 from core.state import Orientation, GameState
 from core.special_tiles import TileType, SwitchType
+from gui.animator import get_moving_split_cube_index
 
 # Thông số kích thước khối và sàn
 TILE_W = 40
@@ -36,10 +37,27 @@ COLOR_BRIDGE_OPEN_RIGHT = (3, 105, 161)
 COLOR_BRIDGE_CLOSED_TOP = (22, 29, 42)
 COLOR_BRIDGE_CLOSED_BORDER = (40, 52, 72)
 
-COLOR_GOAL_TOP = (217, 119, 6)
-COLOR_GOAL_LEFT = (180, 83, 9)
-COLOR_GOAL_RIGHT = (146, 64, 14)
-COLOR_GOAL_DIAMOND = (254, 240, 138)
+# Bảng màu ô đích (Goal) - Xanh lá sáng (Mint / Emerald Green)
+COLOR_GOAL_TOP = (57, 241, 167)
+COLOR_GOAL_LEFT = (40, 195, 130)
+COLOR_GOAL_RIGHT = (28, 155, 102)
+COLOR_GOAL_DIAMOND = (57, 241, 167)
+
+# Bảng màu ô công tắc (Switches)
+# 1. Soft switch (Màu cam/vàng - vòng tròn elip trắng)
+COLOR_SWITCH_SOFT_TOP = (237, 134, 19)
+COLOR_SWITCH_SOFT_LEFT = (195, 110, 15)
+COLOR_SWITCH_SOFT_RIGHT = (160, 90, 12)
+
+# 2. Heavy switch (Màu đỏ - chữ X trắng)
+COLOR_SWITCH_HEAVY_TOP = (222, 48, 56)
+COLOR_SWITCH_HEAVY_LEFT = (180, 38, 45)
+COLOR_SWITCH_HEAVY_RIGHT = (145, 30, 36)
+
+# 3. Split switch (Màu tím - ký hiệu () trắng)
+COLOR_SWITCH_SPLIT_TOP = (190, 63, 240)
+COLOR_SWITCH_SPLIT_LEFT = (155, 50, 195)
+COLOR_SWITCH_SPLIT_RIGHT = (125, 40, 160)
 
 # Bảng màu khối Bloxorz
 COLOR_BLOCK_TOP = (56, 189, 248)
@@ -115,6 +133,16 @@ def draw_iso_tile(
     else:
         col_top, col_left, col_right = COLOR_FLOOR_TOP, COLOR_FLOOR_LEFT, COLOR_FLOOR_RIGHT
 
+    # Nếu ô là ô công tắc: đổi màu toàn bộ ô theo loại công tắc (Soft, Heavy, Split)
+    if (r, c) in board.switches:
+        sw = board.switches[(r, c)]
+        if sw.switch_type == SwitchType.SOFT:
+            col_top, col_left, col_right = COLOR_SWITCH_SOFT_TOP, COLOR_SWITCH_SOFT_LEFT, COLOR_SWITCH_SOFT_RIGHT
+        elif sw.switch_type == SwitchType.HEAVY:
+            col_top, col_left, col_right = COLOR_SWITCH_HEAVY_TOP, COLOR_SWITCH_HEAVY_LEFT, COLOR_SWITCH_HEAVY_RIGHT
+        elif sw.switch_type == SwitchType.SPLIT:
+            col_top, col_left, col_right = COLOR_SWITCH_SPLIT_TOP, COLOR_SWITCH_SPLIT_LEFT, COLOR_SWITCH_SPLIT_RIGHT
+
     top_pts = [(cx, cy - TILE_H), (cx + TILE_W, cy), (cx, cy + TILE_H), (cx - TILE_W, cy)]
     left_pts = [(cx - TILE_W, cy), (cx, cy + TILE_H), (cx, cy + TILE_H + TILE_DEPTH), (cx - TILE_W, cy + TILE_DEPTH)]
     right_pts = [(cx, cy + TILE_H), (cx + TILE_W, cy), (cx + TILE_W, cy + TILE_DEPTH), (cx, cy + TILE_H + TILE_DEPTH)]
@@ -129,44 +157,26 @@ def draw_iso_tile(
     pygame.draw.polygon(surface, col_top, top_pts)
     pygame.draw.polygon(surface, COLOR_FLOOR_BORDER, top_pts, width=1)
 
-    # Nếu là ô Goal: vẽ bệ vàng kim với kim cương phát sáng
-    if tile_type == TileType.GOAL:
-        d_sz = 10
-        diamond_pts = [
-            (cx, cy - d_sz),
-            (cx + d_sz * 1.5, cy),
-            (cx, cy + d_sz),
-            (cx - d_sz * 1.5, cy)
-        ]
-        pygame.draw.polygon(surface, COLOR_GOAL_DIAMOND, diamond_pts)
-        pygame.draw.polygon(surface, (255, 255, 255), diamond_pts, width=1)
 
     # Nếu là ô Fragile: hoa văn gạch chia ô
     if tile_type == TileType.FRAGILE:
         pygame.draw.line(surface, COLOR_FRAGILE_MARK, (cx - 10, cy - 5), (cx + 12, cy + 6), 2)
         pygame.draw.line(surface, COLOR_FRAGILE_MARK, (cx + 5, cy - 8), (cx - 7, cy + 9), 2)
 
-    # Nếu ô có công tắc: vẽ huy hiệu tròn với ký tự S / H / P
+    # Nếu ô có công tắc: vẽ biểu tượng phẳng màu trắng lên mặt trên ô
     if (r, c) in board.switches:
         sw = board.switches[(r, c)]
         if sw.switch_type == SwitchType.SOFT:
-            # Huy hiệu S tròn vàng
-            pygame.draw.circle(surface, (251, 191, 36), (int(cx), int(cy)), 9)
-            pygame.draw.circle(surface, (180, 130, 20), (int(cx), int(cy)), 9, width=1)
-            lbl = font_bold.render("S", True, (15, 23, 42))
-            surface.blit(lbl, lbl.get_rect(center=(cx, cy)))
+            # Vòng tròn (elip) trắng nằm phẳng trên mặt ô isometric
+            rect = pygame.Rect(int(cx - 7), int(cy - 4), 14, 9)
+            pygame.draw.ellipse(surface, (255, 255, 255), rect, width=2)
         elif sw.switch_type == SwitchType.HEAVY:
-            # Huy hiệu H hình thoi đỏ
-            h_pts = [(cx, cy - 8), (cx + 10, cy), (cx, cy + 8), (cx - 10, cy)]
-            pygame.draw.polygon(surface, (239, 68, 68), h_pts)
-            pygame.draw.polygon(surface, (185, 28, 28), h_pts, width=1)
-            lbl = font_bold.render("H", True, (255, 255, 255))
-            surface.blit(lbl, lbl.get_rect(center=(cx, cy)))
+            # Chữ X màu trắng theo hai trục nghiêng isometric
+            pygame.draw.line(surface, (255, 255, 255), (cx - 8, cy - 5), (cx + 8, cy + 5), 3)
+            pygame.draw.line(surface, (255, 255, 255), (cx - 8, cy + 5), (cx + 8, cy - 5), 3)
         elif sw.switch_type == SwitchType.SPLIT:
-            # Huy hiệu P tròn tím
-            pygame.draw.circle(surface, (168, 85, 247), (int(cx), int(cy)), 9)
-            pygame.draw.circle(surface, (126, 34, 206), (int(cx), int(cy)), 9, width=1)
-            lbl = font_bold.render("P", True, (255, 255, 255))
+            # Ký hiệu ( ) phân tách hai khối
+            lbl = font_bold.render("( )", True, (255, 255, 255))
             surface.blit(lbl, lbl.get_rect(center=(cx, cy)))
 
 
@@ -371,24 +381,21 @@ def draw_falling_block(
 
 def draw_rolling_block(surface, from_state: GameState, to_state: GameState, move_dir: str, progress: float, board, center_x: float, center_y: float):
     """Vẽ animation khối Bloxorz đang lăn 3D giữa 2 trạng thái."""
-    import math
-
-
-    # Nếu là các hiệu ứng đặc biệt tách / gộp (SPLIT / MERGE)
     d_upper = str(move_dir).upper()
-    if "SPLIT" in d_upper or "MERGE" in d_upper:
+    has_roll_dir = any(d in d_upper for d in ("RIGHT", "LEFT", "DOWN", "UP"))
+
+    # Nếu là hiệu ứng tách khối (SPLIT) hoặc không có hướng lăn cụ thể
+    if "SPLIT" in d_upper or ("MERGE" in d_upper and not has_roll_dir):
         st = to_state if progress >= 0.5 else from_state
         draw_block(surface, st, board, center_x, center_y)
         return
 
     # Xác định hình hộp ban đầu (r_min, r_max, c_min, c_max, z_min, z_max)
+    inact_pos = None
     if from_state.is_split:
-        active_idx = from_state.active_cube
+        active_idx = get_moving_split_cube_index(from_state, to_state, move_dir)
         inactive_idx = 1 - active_idx
-
-        # Vẽ viên thụ động tĩnh
-        inact_r, inact_c = from_state.cubes[inactive_idx]
-        _draw_single_static_cube(surface, inact_r, inact_c, board, center_x, center_y, is_active=False)
+        inact_pos = from_state.cubes[inactive_idx]
 
         # Viên chủ động lăn
         act_r, act_c = from_state.cubes[active_idx]
@@ -513,6 +520,13 @@ def draw_rolling_block(surface, from_state: GameState, to_state: GameState, move
         rot_3d_verts[k] = (r_rot, c_rot, z_rot)
         proj_verts[k] = project_3d(r_rot, c_rot, z_rot)
 
+    curr_r = sum(rot_3d_verts[k][0] for k in raw_verts) / 8.0
+    curr_c = sum(rot_3d_verts[k][1] for k in raw_verts) / 8.0
+
+    # Nếu viên tĩnh nằm ở phía sau viên đang lăn thì vẽ trước
+    if inact_pos is not None and (inact_pos[0] + inact_pos[1] <= curr_r + curr_c):
+        _draw_single_static_cube(surface, inact_pos[0], inact_pos[1], board, center_x, center_y, is_active=False)
+
     # 6 mặt của khối hộp (các đỉnh theo thứ tự viền ngoài)
     faces_def = [
         ("top", [(0,0,1), (0,1,1), (1,1,1), (1,0,1)], (0.0, 0.0, 1.0)),
@@ -583,3 +597,18 @@ def draw_rolling_block(surface, from_state: GameState, to_state: GameState, move
 
         pygame.draw.polygon(surface, col_fill, pts_2d)
         pygame.draw.polygon(surface, col_border, pts_2d, width=bw)
+
+    # Nếu viên tĩnh nằm ở phía trước viên đang lăn thì vẽ đè lên sau
+    if inact_pos is not None and (inact_pos[0] + inact_pos[1] > curr_r + curr_c):
+        _draw_single_static_cube(surface, inact_pos[0], inact_pos[1], board, center_x, center_y, is_active=False)
+
+    # Vẽ mũi tên chỉ báo phía trên viên chủ động đang lăn
+    if is_active_cube:
+        max_z = max(rot_3d_verts[k][2] for k in raw_verts)
+        ax, ay = project_3d(curr_r, curr_c, max_z)
+        arrow_pts = [
+            (ax, ay - TILE_H - 14),
+            (ax - 6, ay - TILE_H - 24),
+            (ax + 6, ay - TILE_H - 24),
+        ]
+        pygame.draw.polygon(surface, (234, 179, 8), arrow_pts)

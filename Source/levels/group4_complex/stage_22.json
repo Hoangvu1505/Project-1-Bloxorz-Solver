@@ -1,147 +1,37 @@
 {
-  "name": "Stage 22: Master Level",
-  "start": [
-    1,
-    1
-  ],
-  "goal": [
-    1,
-    9
-  ],
+  "name": "Stage 22: Shattered Nexus",
+  "start": [10, 7],
+  "goal": [6, 3],
   "grid": [
-    [
-      1,
-      1,
-      1,
-      1,
-      0,
-      0,
-      0,
-      0,
-      1,
-      1,
-      1
-    ],
-    [
-      1,
-      1,
-      1,
-      1,
-      4,
-      4,
-      0,
-      0,
-      1,
-      2,
-      1
-    ],
-    [
-      0,
-      1,
-      1,
-      0,
-      0,
-      0,
-      0,
-      0,
-      1,
-      1,
-      1
-    ],
-    [
-      0,
-      3,
-      3,
-      3,
-      1,
-      1,
-      1,
-      0,
-      1,
-      1,
-      0
-    ],
-    [
-      0,
-      3,
-      3,
-      3,
-      1,
-      1,
-      1,
-      4,
-      1,
-      1,
-      0
-    ]
+    [1, 1, 1, 1, 1, 1, 4, 0, 0, 0],
+    [1, 1, 1, 1, 0, 0, 1, 1, 1, 0],
+    [1, 1, 1, 1, 0, 0, 1, 1, 1, 0],
+    [0, 0, 4, 0, 0, 0, 1, 1, 1, 0],
+    [0, 0, 4, 0, 0, 0, 3, 3, 1, 0],
+    [0, 0, 1, 1, 1, 3, 3, 3, 1, 0],
+    [0, 0, 1, 2, 1, 3, 3, 3, 1, 4],
+    [0, 0, 0, 1, 0, 3, 3, 3, 3, 1],
+    [0, 0, 0, 0, 0, 0, 3, 3, 3, 1],
+    [0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
+    [0, 0, 0, 4, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 0, 0, 1, 1, 1, 1],
+    [1, 1, 1, 1, 0, 0, 4, 0, 0, 0],
+    [1, 1, 1, 1, 0, 0, 4, 0, 0, 0],
+    [0, 0, 0, 4, 1, 1, 1, 0, 0, 0]
   ],
   "bridges": [
-    {
-      "id": 1,
-      "tiles": [
-        [
-          1,
-          4
-        ],
-        [
-          1,
-          5
-        ]
-      ],
-      "initial_open": false
-    },
-    {
-      "id": 2,
-      "tiles": [
-        [
-          4,
-          7
-        ]
-      ],
-      "initial_open": false
-    }
+    {"id": 1, "tiles": [[3, 2], [4, 2]], "initial_open": true},
+    {"id": 2, "tiles": [[0, 6]], "initial_open": true},
+    {"id": 3, "tiles": [[6, 9]], "initial_open": false},
+    {"id": 4, "tiles": [[12, 6], [13, 6]], "initial_open": false},
+    {"id": 5, "tiles": [[14, 3]], "initial_open": false},
+    {"id": 6, "tiles": [[10, 3]], "initial_open": false}
   ],
   "switches": [
-    {
-      "pos": [
-        0,
-        2
-      ],
-      "type": "split",
-      "action": "toggle",
-      "bridge_ids": [],
-      "split_targets": [
-        [
-          3,
-          4
-        ],
-        [
-          3,
-          6
-        ]
-      ]
-    },
-    {
-      "pos": [
-        4,
-        5
-      ],
-      "type": "soft",
-      "action": "toggle",
-      "bridge_ids": [
-        2
-      ]
-    },
-    {
-      "pos": [
-        4,
-        9
-      ],
-      "type": "heavy",
-      "action": "permanent",
-      "bridge_ids": [
-        1
-      ]
-    }
+    {"pos": [2, 7], "type": "split", "action": "toggle", "bridge_ids": [], "split_targets": [[12, 2], [2, 7]]},
+    {"pos": [1, 1], "type": "soft", "action": "permanent", "bridge_ids": [3, 4]},
+    {"pos": [14, 5], "type": "soft", "action": "toggle", "bridge_ids": [4, 5]},
+    {"pos": [12, 1], "type": "heavy", "action": "permanent", "bridge_ids": [6]},
+    {"pos": [0, 3], "type": "soft", "action": "toggle", "bridge_ids": [1, 2]}
   ]
 }
