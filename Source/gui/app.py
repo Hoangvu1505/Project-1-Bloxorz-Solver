@@ -77,8 +77,8 @@ class CardButton:
             txt_col = COLOR_TEXT_WHITE
         else:
             bg_col = COLOR_CARD_BG
-            border_col = COLOR_CARD_BORDER
-            txt_col = COLOR_TEXT_WHITE
+            border_col = (51, 65, 85)
+            txt_col = (255, 255, 255)
 
         pygame.draw.rect(surface, bg_col, self.rect, border_radius=8)
         pygame.draw.rect(surface, border_col, self.rect, width=1, border_radius=8)
@@ -98,7 +98,7 @@ class CardButton:
 
 class ActionButton:
     """Nút bấm hành động bo góc."""
-    def __init__(self, rect, text, bg_color=(23, 32, 51), hover_color=(30, 44, 68), text_color=(241, 245, 249), border_color=(39, 53, 78)):
+    def __init__(self, rect, text, bg_color=(28, 40, 65), hover_color=(38, 56, 92), text_color=(255, 255, 255), border_color=(51, 65, 85)):
         self.rect = pygame.Rect(rect)
         self.text = text
         self.bg_color = bg_color
@@ -257,18 +257,18 @@ class BloxorzGUI:
         y = 70
 
         card_h = 42
-        self.btn_bfs = CardButton((p_x, y, panel_w, card_h), "BFS Solver", icon="[::]")
+        self.btn_bfs = CardButton((p_x, y, panel_w, card_h), "BFS Solver")
         y += 48
-        self.btn_dfs = CardButton((p_x, y, panel_w, card_h), "DFS Solver", icon="[|]")
+        self.btn_dfs = CardButton((p_x, y, panel_w, card_h), "DFS Solver")
         y += 48
-        self.btn_ucs = CardButton((p_x, y, panel_w, card_h), "UCS Solver", icon="[-]")
+        self.btn_ucs = CardButton((p_x, y, panel_w, card_h), "UCS Solver")
         y += 48
-        self.btn_astar = CardButton((p_x, y, panel_w, card_h), "A* Solver", icon="[*]")
+        self.btn_astar = CardButton((p_x, y, panel_w, card_h), "A* Solver")
 
         y = 415
         self.btn_show_anim = ActionButton(
             (p_x, y, panel_w, 38),
-            "▶  SHOW ANIMATION",
+            "SHOW ANIMATION",
             bg_color=(20, 35, 60),
             hover_color=(30, 55, 95),
             text_color=(56, 189, 248),
@@ -277,33 +277,68 @@ class BloxorzGUI:
 
         y += 44
         half_w = (panel_w - 10) // 2
-        self.btn_step_prev = ActionButton((p_x, y, half_w, 30), "<< Bước trước", bg_color=(23, 32, 51))
-        self.btn_step_next = ActionButton((p_x + half_w + 10, y, half_w, 30), "Bước sau >>", bg_color=(23, 32, 51))
+        self.btn_step_prev = ActionButton(
+            (p_x, y, half_w, 30),
+            "<< Bước trước",
+            bg_color=(28, 40, 65),
+            hover_color=(38, 56, 92),
+            text_color=(255, 255, 255),
+            border_color=(51, 65, 85),
+        )
+        self.btn_step_next = ActionButton(
+            (p_x + half_w + 10, y, half_w, 30),
+            "Bước sau >>",
+            bg_color=(28, 40, 65),
+            hover_color=(38, 56, 92),
+            text_color=(255, 255, 255),
+            border_color=(51, 65, 85),
+        )
 
         y += 36
-        self.btn_speed = ActionButton((p_x, y, half_w, 30), f"Tốc độ: {self.animator.speed}x", bg_color=(23, 32, 51))
+        self.btn_speed = ActionButton(
+            (p_x, y, half_w, 30),
+            f"Tốc độ: {self.animator.speed}x",
+            bg_color=(28, 40, 65),
+            hover_color=(38, 56, 92),
+            text_color=(255, 255, 255),
+            border_color=(51, 65, 85),
+        )
         fs_lbl = "Thu nhỏ (F11)" if self.is_fullscreen else "Toàn màn (F11)"
-        self.btn_fs = ActionButton((p_x + half_w + 10, y, half_w, 30), fs_lbl, bg_color=(23, 32, 51))
+        self.btn_fs = ActionButton(
+            (p_x + half_w + 10, y, half_w, 30),
+            fs_lbl,
+            bg_color=(28, 40, 65),
+            hover_color=(38, 56, 92),
+            text_color=(255, 255, 255),
+            border_color=(51, 65, 85),
+        )
 
         y += 36
-        self.btn_restart = ActionButton((p_x, y, panel_w, 30), "Chơi lại màn này (R)", bg_color=(35, 25, 30), hover_color=(55, 35, 45), text_color=(252, 165, 165), border_color=(127, 29, 29))
+        self.btn_restart = ActionButton(
+            (p_x, y, panel_w, 30),
+            "Chơi lại màn này (R)",
+            bg_color=(55, 25, 35),
+            hover_color=(80, 35, 50),
+            text_color=(254, 226, 226),
+            border_color=(220, 38, 38),
+        )
 
         y += 36
         self.btn_main_menu = ActionButton(
             (p_x, y, half_w, 30),
             "MENU CHÍNH",
-            bg_color=COLOR_CARD_BG,
-            hover_color=COLOR_CARD_HOVER,
-            text_color=COLOR_TEXT_WHITE,
-            border_color=COLOR_CARD_BORDER,
+            bg_color=(28, 40, 65),
+            hover_color=(38, 56, 92),
+            text_color=(255, 255, 255),
+            border_color=(71, 85, 105),
         )
         self.btn_exit_game = ActionButton(
             (p_x + half_w + 10, y, half_w, 30),
             "THOÁT",
-            bg_color=(35, 25, 30),
-            hover_color=(69, 35, 45),
-            text_color=(252, 165, 165),
-            border_color=(127, 29, 29),
+            bg_color=(55, 25, 35),
+            hover_color=(80, 35, 50),
+            text_color=(254, 226, 226),
+            border_color=(220, 38, 38),
         )
 
     def _init_start_screen(self):
@@ -945,10 +980,10 @@ class BloxorzGUI:
         self.btn_next.draw(self.screen, self.font_bold)
 
         # Chữ LEVEL X / 10 ở giữa capsule
-        txt_lvl = self.font_small.render("LEVEL ", True, COLOR_TEXT_DIM)
+        txt_lvl = self.font_small.render("LEVEL ", True, (160, 185, 215))
         cur_num = f"{self.current_stage_idx + 1:02d}" if (self.current_stage_idx + 1) >= 10 else f"{self.current_stage_idx + 1}"
         txt_num = self.font_bold.render(cur_num, True, COLOR_CYAN_GLOW)
-        txt_total = self.font_small.render(f" / {len(self.level_files)}", True, COLOR_TEXT_DIM)
+        txt_total = self.font_small.render(f" / {len(self.level_files)}", True, (160, 185, 215))
 
         mid_w = txt_lvl.get_width() + txt_num.get_width() + txt_total.get_width()
         cur_x = self.rect_capsule.centerx - mid_w // 2
@@ -964,31 +999,6 @@ class BloxorzGUI:
         lvl_name_text = f"Level {self.current_stage_idx + 1} — {self.board.name}"
         lbl_name = self.font_normal.render(lvl_name_text, True, COLOR_TEXT_MUTED)
         self.screen.blit(lbl_name, (self.rect_capsule.right + 20, self.rect_capsule.centery - lbl_name.get_height() // 2))
-
-        # 3. Badge tư thế góc trên-phải (Pill badge)
-        if not self.state.is_split:
-            ori = self.state.orientation
-            if ori == Orientation.STANDING:
-                badge_text = "▲ Standing"
-            elif ori == Orientation.HORIZONTAL:
-                badge_text = "▬ Horizontal"
-            else:
-                badge_text = "❚ Vertical"
-            badge_border = COLOR_CYAN_GLOW
-            badge_bg = (12, 74, 110)
-            badge_txt_col = (186, 230, 253)
-        else:
-            badge_text = f"◆ Split (Cube {self.state.active_cube + 1})"
-            badge_border = (168, 85, 247)
-            badge_bg = (88, 28, 135)
-            badge_txt_col = (233, 213, 255)
-
-        txt_badge = self.font_bold.render(badge_text, True, badge_txt_col)
-        badge_w = txt_badge.get_width() + 24
-        badge_rect = pygame.Rect(screen_w - 360, 18, badge_w, 32)
-        pygame.draw.rect(self.screen, badge_bg, badge_rect, border_radius=16)
-        pygame.draw.rect(self.screen, badge_border, badge_rect, width=1, border_radius=16)
-        self.screen.blit(txt_badge, txt_badge.get_rect(center=badge_rect.center))
 
     #hàm cần code lại
     def draw_board(self):
@@ -1053,10 +1063,35 @@ class BloxorzGUI:
             self.screen.blit(msg_surf, msg_surf.get_rect(center=msg_rect.center))
 
     def draw_sidebar(self):
-        """Vẽ thanh Sidebar bên phải với Solver Cards, SEARCH METRICS và Animation controls."""
+        """Vẽ thanh Sidebar bên phải với Badge tư thế, Solver Cards, SEARCH METRICS và Animation controls."""
         screen_w, screen_h = self.screen.get_size()
         panel_w = 340
         p_x = screen_w - panel_w - 20
+
+        # 1. Badge tư thế góc trên-phải (Pill badge)
+        if not self.state.is_split:
+            ori = self.state.orientation
+            if ori == Orientation.STANDING:
+                badge_text = "▲ Standing"
+            elif ori == Orientation.HORIZONTAL:
+                badge_text = "▬ Horizontal"
+            else:
+                badge_text = "❚ Vertical"
+            badge_border = COLOR_CYAN_GLOW
+            badge_bg = (12, 74, 110)
+            badge_txt_col = (224, 242, 254)
+        else:
+            badge_text = f"◆ Split (Cube {self.state.active_cube + 1})"
+            badge_border = (168, 85, 247)
+            badge_bg = (88, 28, 135)
+            badge_txt_col = (243, 232, 255)
+
+        txt_badge = self.font_bold.render(badge_text, True, badge_txt_col)
+        badge_w = txt_badge.get_width() + 24
+        badge_rect = pygame.Rect(p_x, 18, badge_w, 32)
+        pygame.draw.rect(self.screen, badge_bg, badge_rect, border_radius=16)
+        pygame.draw.rect(self.screen, badge_border, badge_rect, width=1, border_radius=16)
+        self.screen.blit(txt_badge, txt_badge.get_rect(center=badge_rect.center))
 
         if self.game_mode_index == 0:
             # Cập nhật trạng thái active của các nút Solver
@@ -1073,7 +1108,7 @@ class BloxorzGUI:
             # Tiêu đề | SEARCH METRICS
             stat_y = 265
             pygame.draw.line(self.screen, (56, 189, 248), (p_x, stat_y + 2), (p_x, stat_y + 16), 3)
-            lbl_metrics = self.font_bold.render("  SEARCH METRICS", True, COLOR_TEXT_WHITE)
+            lbl_metrics = self.font_bold.render("  SEARCH METRICS", True, (255, 255, 255))
             self.screen.blit(lbl_metrics, (p_x + 4, stat_y))
 
             # Bảng số liệu chi tiết
@@ -1086,48 +1121,48 @@ class BloxorzGUI:
             ]
 
             for label, val in metrics:
-                lbl_surf = self.font_normal.render(label, True, COLOR_TEXT_DIM)
-                val_surf = self.font_bold.render(val, True, COLOR_TEXT_WHITE)
+                lbl_surf = self.font_bold.render(label, True, (203, 213, 225))
+                val_surf = self.font_bold.render(val, True, (255, 255, 255))
                 self.screen.blit(lbl_surf, (p_x, stat_y))
                 self.screen.blit(val_surf, (p_x + panel_w - val_surf.get_width(), stat_y))
                 stat_y += 24
 
             # Cập nhật nút Show / Pause Animation
             if self.animator.is_playing:
-                self.btn_show_anim.text = "❚❚  PAUSE ANIMATION"
+                self.btn_show_anim.text = "PAUSE ANIMATION"
                 self.btn_show_anim.text_color = COLOR_GOLD
                 self.btn_show_anim.border_color = COLOR_GOLD
             else:
-                self.btn_show_anim.text = "▶  SHOW ANIMATION"
+                self.btn_show_anim.text = "SHOW ANIMATION"
                 self.btn_show_anim.text_color = (56, 189, 248)
                 self.btn_show_anim.border_color = (56, 189, 248)
 
             self.btn_show_anim.draw(self.screen, self.font_bold)
-            self.btn_step_prev.draw(self.screen, self.font_small)
-            self.btn_step_next.draw(self.screen, self.font_small)
-            self.btn_speed.draw(self.screen, self.font_small)
-        self.btn_fs.draw(self.screen, self.font_small)
-        self.btn_restart.draw(self.screen, self.font_small)
-        self.btn_main_menu.draw(self.screen, self.font_small)
-        self.btn_exit_game.draw(self.screen, self.font_small)
+            self.btn_step_prev.draw(self.screen, self.font_bold)
+            self.btn_step_next.draw(self.screen, self.font_bold)
+            self.btn_speed.draw(self.screen, self.font_bold)
+        self.btn_fs.draw(self.screen, self.font_bold)
+        self.btn_restart.draw(self.screen, self.font_bold)
+        self.btn_main_menu.draw(self.screen, self.font_bold)
+        self.btn_exit_game.draw(self.screen, self.font_bold)
 
         # Hướng dẫn phím bấm
         guide_y = self.btn_exit_game.rect.bottom + 10
-        guide_txt = self.font_small.render("Phím: WASD/Mũi tên | [ / ]: Chỉnh khối | F11: Toàn màn", True, COLOR_TEXT_DIM)
+        guide_txt = self.font_normal.render("Phím: WASD/Mũi tên | [ / ]: Chỉnh khối | F11: Toàn màn", True, (160, 185, 215))
         self.screen.blit(guide_txt, (p_x, guide_y))
 
         # Banner trạng thái Thắng / Thua
         if self.is_won:
-            b_rect = pygame.Rect(p_x, guide_y + 18, panel_w, 30)
+            b_rect = pygame.Rect(p_x, guide_y + 22, panel_w, 32)
             pygame.draw.rect(self.screen, (20, 83, 45), b_rect, border_radius=6)
             pygame.draw.rect(self.screen, (74, 222, 128), b_rect, width=1, border_radius=6)
-            txt = self.font_bold.render("CHIẾN THẮNG! KHỐI ĐÃ VÀO ĐÍCH!", True, (74, 222, 128))
+            txt = self.font_bold.render("CHIẾN THẮNG! KHỐI ĐÃ VÀO ĐÍCH!", True, (220, 252, 231))
             self.screen.blit(txt, txt.get_rect(center=b_rect.center))
         elif self.game_over:
-            b_rect = pygame.Rect(p_x, guide_y + 18, panel_w, 30)
+            b_rect = pygame.Rect(p_x, guide_y + 22, panel_w, 32)
             pygame.draw.rect(self.screen, (127, 29, 29), b_rect, border_radius=6)
             pygame.draw.rect(self.screen, (248, 113, 113), b_rect, width=1, border_radius=6)
-            txt = self.font_bold.render("THẤT BẠI! KHỐI RƠI HOẶC VỠ SÀN!", True, (248, 113, 113))
+            txt = self.font_bold.render("THẤT BẠI! KHỐI RƠI HOẶC VỠ SÀN!", True, (254, 226, 226))
             self.screen.blit(txt, txt.get_rect(center=b_rect.center))
 
     def draw_popup_result(self):
@@ -1139,8 +1174,9 @@ class BloxorzGUI:
         center_x = (screen_w - 360) // 2
         center_y = screen_h // 2
 
-        # 1. Lớp phủ mờ (dim backdrop) làm nổi bật pop-up
-        overlay = pygame.Surface((screen_w, screen_h), pygame.SRCALPHA)
+        # 1. Lớp phủ mờ (dim backdrop) làm nổi bật pop-up (chỉ phủ khu vực bàn cờ bên trái, không phủ thanh điều khiển bên phải)
+        board_area_w = max(0, screen_w - 360)
+        overlay = pygame.Surface((board_area_w, screen_h), pygame.SRCALPHA)
         overlay.fill((5, 10, 22, 160))
         self.screen.blit(overlay, (0, 0))
 
@@ -1458,8 +1494,8 @@ class BloxorzGUI:
             self.screen.fill(COLOR_BG)
             self.draw_header()
             self.draw_board()
-            self.draw_sidebar()
             self.draw_popup_result()
+            self.draw_sidebar()
 
             pygame.display.flip()
             self.clock.tick(FPS)
