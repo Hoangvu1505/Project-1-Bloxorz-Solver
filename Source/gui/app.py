@@ -305,8 +305,9 @@ class BloxorzGUI:
             border_color=(51, 65, 85),
         )
         fs_lbl = "Windowed (F11)" if self.is_fullscreen else "Fullscreen (F11)"
+        fs_rect = (p_x, y, panel_w, 30) if self.game_mode_index == 1 else (p_x + half_w + 10, y, half_w, 30)
         self.btn_fs = ActionButton(
-            (p_x + half_w + 10, y, half_w, 30),
+            fs_rect,
             fs_lbl,
             bg_color=(28, 40, 65),
             hover_color=(38, 56, 92),
@@ -1139,6 +1140,10 @@ class BloxorzGUI:
                 self.btn_show_anim.text = "PAUSE ANIMATION"
                 self.btn_show_anim.text_color = COLOR_GOLD
                 self.btn_show_anim.border_color = COLOR_GOLD
+            elif self.search_result and self.search_result.solved and self.animator.current_step >= len(self.search_result.states_path) - 1:
+                self.btn_show_anim.text = "REPLAY ANIMATION"
+                self.btn_show_anim.text_color = (56, 189, 248)
+                self.btn_show_anim.border_color = (56, 189, 248)
             else:
                 self.btn_show_anim.text = "SHOW ANIMATION"
                 self.btn_show_anim.text_color = (56, 189, 248)
@@ -1148,6 +1153,63 @@ class BloxorzGUI:
             self.btn_step_prev.draw(self.screen, self.font_bold)
             self.btn_step_next.draw(self.screen, self.font_bold)
             self.btn_speed.draw(self.screen, self.font_bold)
+        else:
+            # Player Mode Dashboard
+            stat_y = 68
+            pygame.draw.line(self.screen, (56, 189, 248), (p_x, stat_y + 2), (p_x, stat_y + 16), 3)
+            lbl_dash = self.font_bold.render("  PLAYER DASHBOARD", True, (255, 255, 255))
+            self.screen.blit(lbl_dash, (p_x + 4, stat_y))
+
+            # Stat card box
+            card_rect = pygame.Rect(p_x, stat_y + 26, panel_w, 150)
+            pygame.draw.rect(self.screen, (20, 30, 48), card_rect, border_radius=8)
+            pygame.draw.rect(self.screen, (40, 60, 95), card_rect, width=1, border_radius=8)
+
+            lbl_mv_title = self.font_normal.render("MOVES TAKEN", True, (148, 163, 184))
+            self.screen.blit(lbl_mv_title, (p_x + 16, stat_y + 38))
+            val_mv = self.font_title.render(str(self.move_count), True, (56, 189, 248))
+            self.screen.blit(val_mv, (p_x + 16, stat_y + 58))
+
+            status_str = "VICTORY" if self.is_won else ("FALLEN" if self.game_over else "IN PROGRESS")
+            status_color = (74, 222, 128) if self.is_won else ((248, 113, 113) if self.game_over else (224, 242, 254))
+
+            info_y = stat_y + 118
+            info_items = [
+                ("CURRENT LEVEL:", self.board.name if self.board else "--"),
+                ("STATUS:", status_str),
+            ]
+            for lbl, val in info_items:
+                l_surf = self.font_bold.render(lbl, True, (148, 163, 184))
+                v_surf = self.font_bold.render(val, True, status_color if lbl == "STATUS:" else (255, 255, 255))
+                self.screen.blit(l_surf, (p_x + 16, info_y))
+                self.screen.blit(v_surf, (p_x + panel_w - 16 - v_surf.get_width(), info_y))
+                info_y += 24
+
+            # Controls card
+            ctrl_y = stat_y + 190
+            pygame.draw.line(self.screen, (56, 189, 248), (p_x, ctrl_y + 2), (p_x, ctrl_y + 16), 3)
+            lbl_ctrl = self.font_bold.render("  CONTROLS GUIDE", True, (255, 255, 255))
+            self.screen.blit(lbl_ctrl, (p_x + 4, ctrl_y))
+
+            ctrl_box = pygame.Rect(p_x, ctrl_y + 26, panel_w, 180)
+            pygame.draw.rect(self.screen, (20, 30, 48), ctrl_box, border_radius=8)
+            pygame.draw.rect(self.screen, (40, 60, 95), ctrl_box, width=1, border_radius=8)
+
+            guides = [
+                ("W / A / S / D", "Move block (Roll)"),
+                ("Arrow Keys", "Move block (Roll)"),
+                ("Space", "Switch cube (Split)"),
+                ("R", "Restart stage"),
+                ("N / P", "Next / Prev stage"),
+                ("F11 / F", "Toggle Fullscreen"),
+            ]
+            gy = ctrl_y + 36
+            for k, desc in guides:
+                k_surf = self.font_bold.render(k, True, (56, 189, 248))
+                d_surf = self.font_normal.render(desc, True, (203, 213, 225))
+                self.screen.blit(k_surf, (p_x + 16, gy))
+                self.screen.blit(d_surf, (p_x + panel_w - 16 - d_surf.get_width(), gy))
+                gy += 22
         self.btn_fs.draw(self.screen, self.font_bold)
         self.btn_restart.draw(self.screen, self.font_bold)
         self.btn_main_menu.draw(self.screen, self.font_bold)
@@ -1268,6 +1330,7 @@ class BloxorzGUI:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
+                    break
                 elif event.type == pygame.VIDEORESIZE:
                     if not self.is_fullscreen:
                         self.screen = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
@@ -1275,7 +1338,30 @@ class BloxorzGUI:
                         self._init_start_screen()
                         self._init_level_select_screen()
                         self._init_settings_screen()
-                elif self.start_screen:
+                        self._init_guide_screen()
+                    continue
+
+                # Global hotkeys available on all screens
+                if event.type == pygame.KEYDOWN and event.key in [pygame.K_F11, pygame.K_f]:
+                    self.toggle_fullscreen()
+                    continue
+
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                    if self.guide_screen:
+                        self.guide_screen = False
+                        self.start_screen = True
+                    elif self.level_select_screen:
+                        self.level_select_screen = False
+                        self.start_screen = True
+                    elif self.settings_screen:
+                        self.settings_screen = False
+                        self.start_screen = True
+                    elif not self.start_screen and not self.is_won and not self.game_over:
+                        self.return_to_main_menu()
+                    continue
+
+                # Menu screens
+                if self.start_screen:
                     for button_index, button in enumerate(self.menu_buttons):
                         if button.handle_event(event):
                             if button_index == 0:
@@ -1293,18 +1379,18 @@ class BloxorzGUI:
                             elif button_index == 4:
                                 running = False
                             break
+                    continue
+
                 elif self.level_select_screen:
                     if self.btn_level_back.handle_event(event):
                         self.level_select_screen = False
                         self.start_screen = True
                     elif self.level_page > 0 and self.btn_level_prev.handle_event(event):
-                        if self.level_page > 0:
-                            self.level_page -= 1
-                            self._init_level_select_screen()
+                        self.level_page -= 1
+                        self._init_level_select_screen()
                     elif self.level_page < self.level_page_count - 1 and self.btn_level_next.handle_event(event):
-                        if self.level_page < self.level_page_count - 1:
-                            self.level_page += 1
-                            self._init_level_select_screen()
+                        self.level_page += 1
+                        self._init_level_select_screen()
                     else:
                         for page_index, button in enumerate(self.level_buttons):
                             if button.handle_event(event):
@@ -1315,6 +1401,8 @@ class BloxorzGUI:
                                 self.load_stage(level_index)
                                 self.level_select_screen = False
                                 break
+                    continue
+
                 elif self.guide_screen:
                     if self.guide_page > 0 and self.btn_guide_prev.handle_event(event):
                         self.guide_page = max(0, self.guide_page - 1)
@@ -1326,6 +1414,8 @@ class BloxorzGUI:
                     elif self.btn_guide_back.handle_event(event):
                         self.guide_screen = False
                         self.start_screen = True
+                    continue
+
                 elif self.settings_screen:
                     if self.btn_settings_fullscreen.handle_event(event):
                         self.toggle_fullscreen()
@@ -1337,13 +1427,15 @@ class BloxorzGUI:
                         self.btn_settings_mode.text = (
                             f"MODE: {self.game_modes[self.game_mode_index]}"
                         )
+                        self._init_ui_elements()
                     elif self.btn_settings_back.handle_event(event):
                         self.settings_screen = False
                         self.start_screen = True
-                elif event.type == pygame.KEYDOWN:
-                    if event.key in [pygame.K_F11, pygame.K_f]:
-                        self.toggle_fullscreen()
-                    elif (self.is_won or self.game_over) and event.key in [pygame.K_RETURN, pygame.K_SPACE]:
+                    continue
+
+                # Gameplay keyboard events
+                if event.type == pygame.KEYDOWN:
+                    if (self.is_won or self.game_over) and event.key in [pygame.K_RETURN, pygame.K_SPACE]:
                         if self.is_won:
                             self.load_stage(self.current_stage_idx + 1)
                         else:
@@ -1414,7 +1506,15 @@ class BloxorzGUI:
                 # Animation and replay controls
                 elif self.game_mode_index == 0 and self.btn_show_anim.handle_event(event):
                     if self.search_result and self.search_result.solved:
-                        self.animator.toggle_play()
+                        if self.animator.current_step >= len(self.search_result.states_path) - 1:
+                            self.animator.current_step = 0
+                            self.animator.active_animation = None
+                            self.state = self.search_result.states_path[0]
+                            self.move_count = 0
+                            self.is_won = False
+                            self.animator.is_playing = True
+                        else:
+                            self.animator.toggle_play()
                 elif self.game_mode_index == 0 and self.btn_step_prev.handle_event(event):
                     if self.search_result and self.search_result.solved:
                         self.manual_anim = None
