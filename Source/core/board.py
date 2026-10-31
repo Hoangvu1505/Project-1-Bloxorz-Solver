@@ -129,7 +129,6 @@ class BloxorzBoard:
             return False
         return state.pos == self.goal_pos
 
-    #hàm cần code lại
     def _trigger_switches(
         self,
         occupied_cells: List[Tuple[int, int]],
@@ -163,7 +162,6 @@ class BloxorzBoard:
         )
         return new_bridge_states, split_triggered_targets
 
-    #hàm cần code lại
     def _apply_switch_effect(self, sw: SwitchInfo, bridge_dict: Dict[int, bool]) -> None:
         """Thực thi tác động của công tắc lên các cầu liên kết."""
         for b_id in sw.bridge_ids:
@@ -173,7 +171,6 @@ class BloxorzBoard:
                 elif sw.action == SwitchAction.PERMANENT:
                     bridge_dict[b_id] = True
 
-    #hàm cần code lại
     def get_successors(self, state: GameState) -> List[Tuple[str, GameState, float]]:
         """Sinh tất cả các trạng thái kế tiếp hợp lệ: [(action, next_state, cost), ...]."""
         successors: List[Tuple[str, GameState, float]] = []
@@ -292,7 +289,6 @@ class BloxorzBoard:
             "switches": [s.to_dict() for s in self.switches.values()]
         }
 
-    #hàm cần code lại
     @staticmethod
     def from_dict(data: Dict[str, Any]) -> 'BloxorzBoard':
         """Khởi tạo bàn cờ từ dictionary JSON."""
@@ -333,7 +329,6 @@ class BloxorzBoard:
             switches=switches
         )
 
-    #hàm cần code lại
     @staticmethod
     def load_from_file(filepath: str) -> 'BloxorzBoard':
         """Tải bàn cờ từ file JSON."""
