@@ -72,7 +72,6 @@ COLOR_BLOCK_ACTIVE_LEFT = (126, 34, 206)
 COLOR_BLOCK_ACTIVE_RIGHT = (88, 28, 135)
 
 
-#hàm cần code lại
 def grid_to_iso(r: float, c: float, rows: int, cols: int, center_x: float, center_y: float) -> tuple[float, float]:
     """Chuyển toạ độ lưới (r, c) sang toạ độ Isometric trên màn hình."""
     center_r = rows / 2.0
@@ -86,7 +85,6 @@ def grid_to_iso(r: float, c: float, rows: int, cols: int, center_x: float, cente
     return iso_x, iso_y
 
 
-#hàm cần code lại
 def draw_iso_tile(
     surface,
     r: int,
@@ -180,7 +178,6 @@ def draw_iso_tile(
             surface.blit(lbl, lbl.get_rect(center=(cx, cy)))
 
 
-#hàm cần code lại
 def draw_block(surface, state: GameState, board, center_x: float, center_y: float):
     """Vẽ khối Bloxorz 3D lên bề mặt isometric."""
     if not state.is_split:
@@ -329,7 +326,6 @@ def _draw_single_static_cube(surface, cr: int, cc: int, board, center_x: float, 
     pygame.draw.polygon(surface, c_bev, top_pts, width=2)
 
 
-#hàm cần code lại
 def draw_falling_block(
     surface,
     from_state: GameState,

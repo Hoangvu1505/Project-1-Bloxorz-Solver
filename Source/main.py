@@ -15,7 +15,6 @@ if hasattr(sys.stdout, 'reconfigure'):
 from gui.app import BloxorzGUI
 
 
-#hàm cần code lại
 def main():
     """Khởi động trò chơi Bloxorz với giao diện đồ hoạ tương tác Pygame."""
     print("=" * 60)
